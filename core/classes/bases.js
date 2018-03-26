@@ -30,11 +30,8 @@ class Wallet extends JobQueue {
 		this.filterSets = [];
 		this.userWallet = undefined;
 		this.gasPrice = 50000000000; // 50 GWei, this should become dynamic when integrated with gas price oracle
-
-		// Testing HTML DOM integration
-		this.document = undefined;
-		this.paused = false;
 		this.allocated = {}; // {addr: amount}
+		this.passVault = undefined;
 
 		// This app only need 'Token' ABI type for EIP20, the rest is provided by Wrap3.
 		// and these are to be initialized with hotgroups
@@ -52,11 +49,11 @@ class Wallet extends JobQueue {
 			return fetch(this.GasOracle)
 	                        .then( (r) => { return r.json(); })
         	                .then( (json) => { 
-						   return { 
-								low: json.safeLow, 
-								mid: json.average, 
-							       high: json.fast, 
-                                                               fast: json.fastest, 
+						   return {   // ethGasStation returns unit is 10GWei, hence 10 ** 8
+								low: String(Number(json.safeLow)*(10 ** 8)), 
+								mid: String(Number(json.average)*(10 ** 8)), 
+							       high: String(Number(json.fast)*(10 ** 8)), 
+                                                               fast: String(Number(json.fastest)*(10 ** 8)), 
                                                             onblock: json.blockNum
 							  }; 
 				                 })
@@ -83,8 +80,6 @@ class Wallet extends JobQueue {
 
 	toEth = (wei, decimals) => new BigNumber(String(wei)).div(new BigNumber(10 ** decimals));
 	toWei = (eth, decimals) => new BigNumber(String(eth)).times(new BigNumber(10 ** decimals)).floor();	
-
-	hookDOM = document => { this.document = document; }
 
 	setAccount = addr => 
 	{
@@ -144,7 +139,7 @@ class Wallet extends JobQueue {
 			.then( (Q) => 
 			{
 				// load passwd.json then processQ
-				let passes = require( __dirname + '/configs/passes.json');
+				let passes = require(this.passVault);
 		                return this.processQ(Q)(passes);
 
 				// DEBUG:
@@ -160,7 +155,7 @@ class Wallet extends JobQueue {
 	//
 	// Note that if tokenSymbol is 'eth', it means to send Ether
 	// using web3.eth.sendTransaction().
-	send = tokenSymbol => (toAddress, amount, gasAmount) => 
+	enqueueTx = tokenSymbol => (toAddress, amount, gasAmount) => 
 	{
 		if (tokenSymbol === 'ETH') {
 			return {

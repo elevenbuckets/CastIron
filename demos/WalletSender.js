@@ -7,13 +7,17 @@ const WT = new Wallet(1100); // mainnet id = 1;
 // setup
 WT.condition = 'sanity';
 WT.gasPrice = 20000000000; // 20 GWei
+WT.passVault = __dirname + '/.local/passes.json';
 
 // variables
-let stage = Promise.resolve();
+let stage = WT.gasPriceEst();
 
 // MAIN
-stage.then( () => 
+stage.then( (gpmx) => 
 {
+	console.log(gpmx);
+	WT.gasPrice = gpmx.fast;
+
 	let SRCWallets = 
 	{
 		'0x7cbfb383074f77ad8b65b885a3f915cff1852a69': 100
@@ -27,7 +31,7 @@ stage.then( () =>
 	  {
 	  	WT.userWallet = addr;
 		let amount = WT.toWei(SRCWallets[addr], WT.TokenList['TTT'].decimals).toString();
-		return WT.send('TTT')(TargetWallet, amount, 250000);
+		return WT.enqueueTx('TTT')(TargetWallet, amount, 250000);
 	  });
 
 	//console.log(jobList);

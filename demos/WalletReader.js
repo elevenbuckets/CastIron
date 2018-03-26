@@ -5,7 +5,6 @@ const Wallet = require( __dirname + '/core/Wallet.js');
 const WT = new Wallet(1100); // mainnet id = 1;
 
 // variables
-let ethGasAPI = 'https://ethgasstation.info/json/ethgasAPI.json';
 let tokenList = ['TTT'];
 let stage = Promise.resolve();
 
