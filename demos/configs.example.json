@@ -1,0 +1,9 @@
+{
+  "rpcAddr": "http://127.0.0.1:8545",
+  "ipcPath": "/home/jasonlin/.ethereum/geth.ipc",
+  "defaultGasPrice": "20000000000",
+  "gasOracleAPI": "https://ethgasstation.info/json/ethgasAPI.json",
+  "condition": "sanity",
+  "networkID": "1100",
+  "passVault": "/home/jasonlin/Proj/Jerry/devtop/_workdir/ETH/Truffles/11BE/MVP/CastIron/.local/passes.json"
+}

@@ -5,9 +5,9 @@ const Wrap3 = require( __dirname + '/Wrap3.js' )
 
 // Main Class
 class JobQueue extends Wrap3 {
-        constructor(networkID, configFilePath)
+        constructor(cfpath)
         {
-                super(networkID, configFilePath);
+                super(cfpath);
 
                 this.version = '1.0'; // API version
                 this.jobQ = {};	// Should use setter / getter
@@ -15,7 +15,7 @@ class JobQueue extends Wrap3 {
 
 		// fulfiller (for fulfill conditions)
 		this.fulfiller = this.web3.eth.accounts[0];
-		this.condition = null; // 'sanity' or 'fulfill'
+		this.condition = this.configs.condition || null; // 'sanity' or 'fulfill'
         }
 
 	// JobObj: {type: 'Token', contract: 'TKA', call: 'transfer', args: ['p1', 'p2'], txObj: {from: issuer, gas: 180000}, Q, p1, p2}

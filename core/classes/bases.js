@@ -21,17 +21,17 @@ const Tokens = require( __dirname + '/configs/Tokens.json' );
 
 //Main class
 class Wallet extends JobQueue {
-	constructor(networkID, configFilePath) {
-		super(networkID, configFilePath);
+	constructor(cfpath) {
+		super(cfpath);
 
 		this.TokenABI  = this.web3.eth.contract(EIP20ABI);
-		this.GasOracle = 'https://ethgasstation.info/json/ethgasAPI.json';
+		this.GasOracle = this.configs.gasOracleAPI || undefined;
 		this.TokenList = Tokens;
 		this.filterSets = [];
 		this.userWallet = undefined;
-		this.gasPrice = 50000000000; // 50 GWei, this should become dynamic when integrated with gas price oracle
+		this.gasPrice = this.configs.defaultGasPrice || 50000000000; // 50 GWei, this should become dynamic when integrated with gas price oracle
 		this.allocated = {}; // {addr: amount}
-		this.passVault = undefined;
+		this.passVault = this.configs.passVault || undefined;
 
 		// This app only need 'Token' ABI type for EIP20, the rest is provided by Wrap3.
 		// and these are to be initialized with hotgroups

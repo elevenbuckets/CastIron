@@ -20,15 +20,19 @@ const allConditions  = { ...web3EthSanity, ...web3EthFulfill };
 
 // Main Class
 class Wrap3 {
-	constructor(networkID, configFilePath)
+	constructor(cfpath)
 	{
-		let configs = require(configFilePath);
+		this.configs = require(cfpath);
 
-		this.rpcAddr = configs.rpcAddr;
-		this.ipcPath = configs.ipcPath;
+		this.networkID = this.configs.networkID;
+
+		this.rpcAddr = this.configs.rpcAddr;
+		this.ipcPath = this.configs.ipcPath;
 
 		this.web3 = new Web3();
                 this.web3.setProvider(new Web3.providers.HttpProvider(this.rpcAddr));
+
+		if (this.web3.version.network != this.networkID) throw(`Connected to network with wrong ID: wants: ${this.networkID}; geth: ${this.web3.net.version}`);
 
     		this.web3.toAddress = address => {
 			let addr = String(this.web3.toHex(this.web3.toBigNumber(address)));
@@ -47,8 +51,6 @@ class Wrap3 {
 
     		this.ipc3 = new Web3();
     		this.ipc3.setProvider(new Web3.providers.IpcProvider(this.ipcPath, net));
-
-		this.networkID = networkID;
 
 		// this.CUE[type][contract][call](...args, txObj)
 		// Only web3.eth.sendTransaction requires password unlock.

@@ -2,7 +2,7 @@
 
 // Cast-Iron sub-class and instance
 const Wallet = require( __dirname + '/core/Wallet.js');
-const WT = new Wallet(1100); // mainnet id = 1;
+const WT = new Wallet( __dirname + '/.local/configs.json'); // mainnet id = 1;
 
 // variables
 let tokenList = ['TTT'];
