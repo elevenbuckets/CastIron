@@ -6,6 +6,7 @@
     "test": "test"
   },
   "scripts": {
+    "postinstall": "npm run core",
     "test": "echo \"Error: no test specified\" && exit 1",
     "w": "./node_modules/.bin/babel --presets es2015 --plugins transform-class-properties,transform-object-rest-spread ./core/classes/wrapper.js -o ./core/Wrap3.js",
     "q": "./node_modules/.bin/babel --presets es2015 --plugins transform-class-properties,transform-object-rest-spread ./core/classes/queues.js -o ./core/JobQueue.js",
