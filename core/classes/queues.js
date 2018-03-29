@@ -5,9 +5,9 @@ const Wrap3 = require( __dirname + '/Wrap3.js' )
 
 // Main Class
 class JobQueue extends Wrap3 {
-        constructor(networkID)
+        constructor(networkID, configFilePath)
         {
-                super(networkID);
+                super(networkID, configFilePath);
 
                 this.version = '1.0'; // API version
                 this.jobQ = {};	// Should use setter / getter

@@ -21,8 +21,8 @@ const Tokens = require( __dirname + '/configs/Tokens.json' );
 
 //Main class
 class Wallet extends JobQueue {
-	constructor(networkID) {
-		super(networkID);
+	constructor(networkID, configFilePath) {
+		super(networkID, configFilePath);
 
 		this.TokenABI  = this.web3.eth.contract(EIP20ABI);
 		this.GasOracle = 'https://ethgasstation.info/json/ethgasAPI.json';

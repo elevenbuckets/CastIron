@@ -20,10 +20,12 @@ const allConditions  = { ...web3EthSanity, ...web3EthFulfill };
 
 // Main Class
 class Wrap3 {
-	constructor(networkID)
+	constructor(networkID, configFilePath)
 	{
-		this.rpcAddr = 'http://127.0.0.1:8545';
-		this.ipcPath = path.join(os.homedir(), '.ethereum', 'geth.ipc');
+		let configs = require(configFilePath);
+
+		this.rpcAddr = configs.rpcAddr;
+		this.ipcPath = configs.ipcPath;
 
 		this.web3 = new Web3();
                 this.web3.setProvider(new Web3.providers.HttpProvider(this.rpcAddr));
