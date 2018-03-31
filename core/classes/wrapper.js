@@ -17,12 +17,16 @@ const path = require('path');
 const web3EthFulfill = require( __dirname + '/conditions/Web3/Fulfill.js' );
 const web3EthSanity  = require( __dirname + '/conditions/Web3/Sanity.js' );
 const allConditions  = { ...web3EthSanity, ...web3EthFulfill };
+const fs = require('fs');
 
 // Main Class
 class Wrap3 {
 	constructor(cfpath)
 	{
-		this.configs = require(cfpath);
+		//this.configs = require(cfpath);
+		let buffer = fs.readFileSync('./.local/configs.json');
+		this.configs = JSON.parse(buffer.toString());
+
 
 		this.networkID = this.configs.networkID;
 
