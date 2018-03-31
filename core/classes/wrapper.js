@@ -24,7 +24,7 @@ class Wrap3 {
 	constructor(cfpath)
 	{
 		//this.configs = require(cfpath);
-		let buffer = fs.readFileSync('./.local/configs.json');
+		let buffer = fs.readFileSync(cfpath);
 		this.configs = JSON.parse(buffer.toString());
 
 
