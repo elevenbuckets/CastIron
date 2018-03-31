@@ -3,6 +3,7 @@
 // Third party libraries
 const BigNumber = require('bignumber.js');
 const fetch     = require('node-fetch');
+const fs        = require('fs');
 
 // Cast-Iron Core
 const JobQueue = require( __dirname + '/JobQueue.js');
@@ -139,7 +140,10 @@ class Wallet extends JobQueue {
 			.then( (Q) => 
 			{
 				// load passwd.json then processQ
-				let passes = require(this.passVault);
+				//let passes = require(this.passVault);
+				let buffer = fs.readFileSync(this.passVault);
+				let passes = JSON.parse(buffer.toString());
+
 		                return this.processQ(Q)(passes);
 
 				// DEBUG:
