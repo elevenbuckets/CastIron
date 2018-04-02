@@ -112,9 +112,11 @@ class JobQueue extends Wrap3 {
 
         	let results = Promise.resolve();
 
-        	Object.keys(passes).map((addr) => {
-                	if (typeof(this.jobQ[Q][addr]) === 'undefined' || this.jobQ[Q][addr].length == 0) {
+        	Object.keys(this.jobQ[Q]).map((addr) => {
+                	if (typeof(passes[addr]) === 'undefined' || passes[addr].length == 0) {
 				delete this.jobQ[Q][addr];
+				console.log("no password provided for address " + addr + ", skipped ...");
+
                         	return;
                 	}
 
