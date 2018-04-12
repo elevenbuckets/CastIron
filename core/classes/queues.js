@@ -47,6 +47,8 @@ class JobQueue extends Wrap3 {
 
 		if (typeof(this[cfname]) === 'undefined') {
 			throw new Error(`Invalid jobObj: ${JSON.stringify(jobObj, 0, 2)}`);
+		} else if (typeof(this.CUE[jobObj.type]) === 'undefined' || typeof(this.CUE[jobObj.type][jobObj.contract]) === 'undefined') {
+			throw new Error(`Invalid or unknown contract ABI: ${JSON.stringify(jobObj, 0, 2)}`);
 		} else if (this[cfname](addr, jobObj) == true) {
 			let args = job.args.map((e) => 
 			{ 
@@ -86,13 +88,11 @@ class JobQueue extends Wrap3 {
 	        return new Promise(__atOnce(jobObjMap));
 	}
 
-	prepareQ = tokenList => 
+	prepareQ = timeout => 
 	{
-		if (this.hotGroups(tokenList) !== true) throw new Error(`Not all symbols in tokenList is registered...`);
-
 	        const __initQueue = (resolve, reject) => {
 		 	if (Object.keys(this.jobQ).length !== 0) {
-		 		setTimeout(() => __initQueue(resolve, reject), 5000);
+		 		setTimeout(() => __initQueue(resolve, reject), timeout);
 			} else {
 				let myid = uuid();
 				this.jobQ[myid] = {};

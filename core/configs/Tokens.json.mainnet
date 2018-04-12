@@ -3438,5 +3438,25 @@
     "addr": "0x05f4a42e251f2d52b8ed15e9fedaacfcef1fad27",
     "name": "Zilliqa",
     "decimals": 12
+  },
+  "GNT": {
+    "addr": "0xa74476443119A942dE498590Fe1f2454d7D4aC0d",
+    "name": "Golem",
+    "decimals": 18
+  },
+  "DAT": {
+    "addr": "0x81c9151de0C8bafCd325a57E3dB5a5dF1CEBf79c",
+    "name": "Datum",
+    "decimals": 18
+  },
+  "GLA": {
+    "addr": "0x71D01dB8d6a2fBEa7f8d434599C237980C234e4C",
+    "name": "Gladius",
+    "decimals": 8
+  },
+  "LST": {
+    "addr": "0x4de2573e27E648607B50e1Cfff921A33E4A34405",
+    "name": "Landroid Support Token",
+    "decimals": 18
   }
 }
