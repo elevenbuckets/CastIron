@@ -5,6 +5,8 @@ const Wallet = require( __dirname + '/core/Wallet.js');
 
 // Reflux
 const Reflux = require('reflux');
+import React from 'react';
+import ReactDOM from 'react-dom';
 
 // Store
 class StatusStore extends Reflux.Store
@@ -12,7 +14,7 @@ class StatusStore extends Reflux.Store
     constructor(tokenList, Actions)
     {
         super();
-        this.state = {'ETH': 0}; // <- set store's default state much like in React
+        this.state = { balances: {'ETH': 0}, address: '0x' }; // <- set store's default state much like in React
 	this.tokenList = tokenList;
 	this._count;
 	this._target;
@@ -27,7 +29,8 @@ class StatusStore extends Reflux.Store
 	this._count = 0;
 	this._target = this.tokenList.length + 1;
 
-	this.WT.setAccount(address);
+	this.WT.setAccount(address); 
+	this.state.address = address;
 	this.WT.hotGroups(this.tokenList);
 	
 	this.tokenList.map( (t) =>
@@ -40,7 +43,7 @@ class StatusStore extends Reflux.Store
     onStatusUpdate(status)
     {
 	this._count++;
-	this.state = {...this.state, ...status};
+	this.state.balances = {...this.state.balances, ...status};
 
 	//console.log(status);
 	if (this._count == this._target) Actions.finishUpdate();
@@ -48,7 +51,8 @@ class StatusStore extends Reflux.Store
 
     onFinishUpdate() 
     {
-	console.log(JSON.stringify(this.state, 0 ,2));
+	console.log(`-|| Account: ${this.state.address} ||-`);
+	console.log(JSON.stringify(this.state.balances, 0 ,2));
 	console.log(`--------------------`);
 	// we can perhaps store a copy of the state on disk?
     }
@@ -58,11 +62,45 @@ class StatusStore extends Reflux.Store
 
 // Reflux Actions
 let Actions = Reflux.createActions(['startUpdate', 'statusUpdate', 'finishUpdate']);
-Actions.startUpdate.preEmit = (address) => { console.log(`-|| Account: ${address} ||-`) };
+//Actions.startUpdate.preEmit = (address) => { console.log(`-|| Account: ${address} ||-`) };
 
 let address = "0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B"; // Sorry Vitalik! 
 let tokenList = ['BCPT','ZIL','SNGLS','RHOC','DATA','GUP','LINK','OMG','QSP','REQ','RLC','ANT','BAT','OPT','SALT','WINGS','KIN','LST','GNT','GLA','DAT'];
 
-new StatusStore(tokenList, Actions);
+// Reflux components
+class QueryForm extends Reflux.Component {
+  constructor(props) {
+    super(props);
+    this.store = new StatusStore(tokenList, Actions);
 
-Actions.startUpdate(address);
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  handleChange(event) {
+    this.setState({address: event.target.address});
+  }
+
+  handleSubmit(event) {
+    event.preventDefault();
+    Actions.startUpdate(address);
+  }
+
+  render() {
+    return (
+      <form onSubmit={this.handleSubmit}>
+        <label>
+          Address:
+          <input type="text" value={this.state.address} onChange={this.handleChange} />
+        </label>
+        <input type="submit" value="Submit" />
+      </form>
+    );
+  }
+}
+
+ReactDOM.render
+(
+	<QueryForm/>,
+	document.querySelector('#root')
+);
