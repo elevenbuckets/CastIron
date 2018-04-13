@@ -1,5 +1,5 @@
 ## Simple Demo
-WalletReader.js shows how to get Ethereum account information via CastIron.
+WalletReader.js and AccountSweeper.js show how to get Ethereum account information via CastIron.
 
 WalletSender.js demonstrate sending 'TTT' demo ERC20 token (on privnet) using CastIron.
 
