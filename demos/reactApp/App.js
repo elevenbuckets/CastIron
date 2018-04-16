@@ -254,10 +254,10 @@ class QueryForm extends Reflux.Component {
 	        }
 	    /></td>
           <td>
-           <label align="left">
-             Address:
-	      <Dropdown ref='addrlist' options={this.state.accounts} onChange={this.handleChange} value={this.state.address} placeholder="Select an option" />
-           </label>
+           <label>
+	     Address:
+	     <Dropdown ref='addrlist' options={this.state.accounts} onChange={this.handleChange} value={this.state.address} placeholder="Select an option" />
+	   </label>
 	  </td>
         </tr>
 	<tr><td colSpan="2"><GenSheets /></td></tr>
