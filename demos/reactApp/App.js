@@ -1,51 +1,172 @@
 'use strict';
 
-// Cast-Iron sub-class and instance
-const Wallet = require( __dirname + '/core/Wallet.js');
+import Wallet from './core/Wallet';
+import Blockies from './core/libs/blockies';
 
-// Reflux
-const Reflux = require('reflux');
+import Reflux from 'reflux';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Dropdown from 'react-dropdown';
 
-// Store
+// Reflux Actions
+let Actions = Reflux.createActions(['startUpdate', 'statusUpdate', 'finishUpdate']);
+
+// Reflux Store
 class StatusStore extends Reflux.Store
 {
-    constructor(tokenList, Actions)
+    constructor()
     {
         super();
-        this.state = { balances: {'ETH': 0}, address: '0x' }; // <- set store's default state much like in React
-	this.tokenList = tokenList;
+        this.state = { balances: {'ETH': 0}, address: '' }; // <- set store's default state much like in React
+	this.tokenList = ['TTT'];
 	this._count;
 	this._target;
 	this.WT = new Wallet( __dirname + '/.local/configs.json');
+	this.state.accounts = this.WT.web3.eth.accounts;
 
-	// listenTo
 	this.listenables = Actions;
     }
 
-    onStartUpdate(address)
+    _create = (canvas) => {
+        // The random number is a js implementation of the Xorshift PRNG
+	let randseed = new Array(4); // Xorshift: [x, y, z, w] 32 bit values
+
+	let seedrand = (seed) => {
+		for (var i = 0; i < randseed.length; i++) {
+			randseed[i] = 0;
+		}
+		for (var i = 0; i < seed.length; i++) {
+			randseed[i%4] = ((randseed[i%4] << 5) - randseed[i%4]) + seed.charCodeAt(i);
+		}
+	}
+
+	let rand = () => {
+		// based on Java's String.hashCode(), expanded to 4 32bit values
+		var t = randseed[0] ^ (randseed[0] << 11);
+
+		randseed[0] = randseed[1];
+		randseed[1] = randseed[2];
+		randseed[2] = randseed[3];
+		randseed[3] = (randseed[3] ^ (randseed[3] >> 19) ^ t ^ (t >> 8));
+
+		return (randseed[3]>>>0) / ((1 << 31)>>>0);
+	}
+
+	let createColor = () => {
+		//saturation is the whole color spectrum
+		var h = Math.floor(rand() * 360);
+		//saturation goes from 40 to 100, it avoids greyish colors
+		var s = ((rand() * 60) + 40) + '%';
+		//lightness can be anything from 0 to 100, but probabilities are a bell curve around 50%
+		var l = ((rand()+rand()+rand()+rand()) * 25) + '%';
+
+		var color = 'hsl(' + h + ',' + s + ',' + l + ')';
+		return color;
+	}
+
+	let createImageData = (size) => {
+		var width = size; // Only support square icons for now
+		var height = size;
+
+		var dataWidth = Math.ceil(width / 2);
+		var mirrorWidth = width - dataWidth;
+
+		var data = [];
+		for(var y = 0; y < height; y++) {
+			var row = [];
+			for(var x = 0; x < dataWidth; x++) {
+				// this makes foreground and background color to have a 43% (1/2.3) probability
+				// spot color has 13% chance
+				row[x] = Math.floor(rand()*2.3);
+			}
+			var r = row.slice(0, mirrorWidth);
+			r.reverse();
+			row = row.concat(r);
+
+			for(var i = 0; i < row.length; i++) {
+				data.push(row[i]);
+			}
+		}
+
+		return data;
+	}
+
+	let buildOpts = (address) => {
+		var newOpts = {};
+
+		newOpts.seed = address;
+		seedrand(newOpts.seed);
+
+		newOpts.size = 11;
+		newOpts.scale = 6;
+		newOpts.color = createColor();
+		newOpts.bgcolor = createColor();
+		newOpts.spotcolor = createColor();
+
+		return newOpts;
+	}
+
+	let renderIcon = (opts, canvas) => {
+		var imageData = createImageData(opts.size);
+		var width = Math.sqrt(imageData.length);
+		var cc = canvas.getContext('2d');
+
+		canvas.width = canvas.height = opts.size * opts.scale;
+
+		cc.clearRect(0,0, canvas.width, canvas.height);
+		cc.fillStyle = opts.bgcolor;
+		cc.fillRect(0, 0, canvas.width, canvas.height);
+		cc.fillStyle = opts.color;
+
+		for(var i = 0; i < imageData.length; i++) {
+
+			// if data is 0, leave the background
+			if(imageData[i]) {
+				var row = Math.floor(i / width);
+				var col = i % width;
+
+				// if data is 2, choose spot color, if 1 choose foreground
+				cc.fillStyle = (imageData[i] == 1) ? opts.color : opts.spotcolor;
+
+				cc.fillRect(col * opts.scale, row * opts.scale, opts.scale, opts.scale);
+			}
+		}
+
+		return canvas;
+	}
+
+	let hex_address = this.state.address.replace('x', '0');
+	if (hex_address.match(/[0-9a-f]{42}/ig)) {
+		let opts = buildOpts(this.state.address);
+		return renderIcon(opts, canvas);
+	}
+    }
+
+    onStartUpdate(address, canvas)
     {
 	this._count = 0;
 	this._target = this.tokenList.length + 1;
 
 	this.WT.setAccount(address); 
-	this.state.address = address;
+	this.setState({ address: address });
 	this.WT.hotGroups(this.tokenList);
 	
 	this.tokenList.map( (t) =>
 	{ 
 		Actions.statusUpdate({[t]: Number(this.WT.toEth(this.WT.addrTokenBalance(t)(this.WT.userWallet), this.WT.TokenList[t].decimals).toFixed(9))}); 
 	});
-	Actions.statusUpdate({'ETH': Number(this.WT.toEth(this.WT.addrEtherBalance(this.WT.userWallet), this.WT.TokenList['ETH'].decimals).toFixed(9))}); 
+
+	Actions.statusUpdate({'ETH': Number(this.WT.toEth(this.WT.addrEtherBalance(this.WT.userWallet), this.WT.TokenList['ETH'].decimals).toFixed(9))});
+
+	this._create(canvas);
     }
 
     onStatusUpdate(status)
     {
 	this._count++;
-	this.state.balances = {...this.state.balances, ...status};
 
-	//console.log(status);
+	this.setState( {balances: {...this.state.balances, ...status} });
+
 	if (this._count == this._target) Actions.finishUpdate();
     }
 
@@ -56,45 +177,94 @@ class StatusStore extends Reflux.Store
 	console.log(`--------------------`);
 	// we can perhaps store a copy of the state on disk?
     }
+
 }
 
-// MAIN
-
-// Reflux Actions
-let Actions = Reflux.createActions(['startUpdate', 'statusUpdate', 'finishUpdate']);
-//Actions.startUpdate.preEmit = (address) => { console.log(`-|| Account: ${address} ||-`) };
-
-let address = "0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B"; // Sorry Vitalik! 
-let tokenList = ['BCPT','ZIL','SNGLS','RHOC','DATA','GUP','LINK','OMG','QSP','REQ','RLC','ANT','BAT','OPT','SALT','WINGS','KIN','LST','GNT','GLA','DAT'];
-
 // Reflux components
+
+class GenSheets extends Reflux.Component {
+  constructor(props) {
+    super(props);
+    this.store = StatusStore;
+  }
+
+  render = () => 
+  {
+    if (this.state.address == '') return (<p/>);
+
+    const balanceSheet = Object.keys(this.state.balances).map((b) =>
+    { 
+	if (b == 'ETH') {
+	return (
+	<tr key={b} className="balance-sheet">
+          <td className="balance-sheet">{b}:</td>
+	  <td className="balance-sheet">{this.state.balances[b]}</td>
+	  <td className="balance-sheet"><input type="button" value="send"/></td>
+	  <td className="balance-sheet"><input type="button" value="buy" disabled="true"/></td>
+	  <td className="balance-sheet"><input type="button" value="sell" disabled="true"/></td>
+	</tr> );
+	} else {
+	return (
+	<tr key={b} className="balance-sheet">
+          <td className="balance-sheet">{b}:</td>
+	  <td className="balance-sheet">{this.state.balances[b]}</td>
+	  <td className="balance-sheet"><input type="button" value="send"/></td>
+	  <td className="balance-sheet"><input type="button" value="buy"/></td>
+	  <td className="balance-sheet"><input type="button" value="sell"/></td>
+	</tr> );
+	}
+    });
+
+    return (
+		    <table className="balance-sheet">
+		    <tbody>
+		    {balanceSheet}
+    		    </tbody>
+		    </table>);
+  }
+}
+
 class QueryForm extends Reflux.Component {
   constructor(props) {
     super(props);
-    this.store = new StatusStore(tokenList, Actions);
-
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
+    this.store = StatusStore;
   }
 
-  handleChange(event) {
-    this.setState({address: event.target.address});
+  handleChange = (event) => 
+  {
+    Actions.startUpdate(event.value, this.refs.canvas);
   }
 
-  handleSubmit(event) {
-    event.preventDefault();
-    Actions.startUpdate(address);
-  }
-
-  render() {
+  render = () => 
+  {
     return (
-      <form onSubmit={this.handleSubmit}>
-        <label>
-          Address:
-          <input type="text" value={this.state.address} onChange={this.handleChange} />
-        </label>
-        <input type="submit" value="Submit" />
-      </form>
+      <div>
+	<table>
+	<tbody>
+	<tr>
+          <td className="avatar">
+	    <canvas ref='canvas' width={66} height={66} style= 
+	        {
+		    { 
+		  	border: "3px solid #ccc",
+			borderBottomLeftRadius: "2.8em", 
+			borderBottomRightRadius: "2.8em", 
+			borderTopRightRadius: "2.8em", 
+			borderTopLeftRadius: "2.8em" 
+		    }
+	        }
+	    /></td>
+          <td>
+           <label align="left">
+             Address:
+	      <Dropdown ref='addrlist' options={this.state.accounts} onChange={this.handleChange} value={this.state.address} placeholder="Select an option" />
+           </label>
+	  </td>
+        </tr>
+	<tr><td colSpan="2"><GenSheets /></td></tr>
+	</tbody>
+	</table>
+      </div>
     );
   }
 }

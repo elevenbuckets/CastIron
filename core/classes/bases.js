@@ -68,7 +68,7 @@ class Wallet extends JobQueue {
         {
                 let rc = tokenList.map( (token) =>
                 {
-			if (typeof(this.TokenList[token]) !== 'undefined') return false;
+			if (typeof(this.TokenList[token]) === 'undefined') return false;
 
                         let record = this.TokenList[token];
 
