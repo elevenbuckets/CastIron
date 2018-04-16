@@ -1,7 +1,6 @@
 'use strict';
 
 import Wallet from './core/Wallet';
-import Blockies from './core/libs/blockies';
 
 import Reflux from 'reflux';
 import React from 'react';
