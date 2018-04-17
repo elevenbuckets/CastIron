@@ -1,3 +1,22 @@
+.button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 2px 1px;
+    cursor: pointer;
+}
+
+.button:disabled {
+	background-color: #eeeeee;
+	color: #aaaaaa;
+        cursor: default;
+}
+
 table.balance-sheet {
 	width: 100%;
 	text-align: center;
@@ -12,6 +31,11 @@ tr.balance-sheet:nth-child(odd) {
 td.balance-sheet {
 	text-align: center;
 	color: #000000;
+}
+
+th.balance-sheet {
+	text-align: center;
+	color: #ffffff;
 }
 
 td.avatar {
