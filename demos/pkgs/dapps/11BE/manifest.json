@@ -1,0 +1,8 @@
+{
+  "name": "11BE",
+  "version": "0.2",
+  "contracts": ["ETHMall", "PoSIMS"],
+  "store": true,
+  "action": true,
+  "view": true
+}
