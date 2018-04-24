@@ -1,5 +1,5 @@
 {
-  "name": "11BE",
+  "name": "BMart",
   "version": "0.2",
   "contracts": ["ETHMall", "PoSIMS"],
   "store": true,

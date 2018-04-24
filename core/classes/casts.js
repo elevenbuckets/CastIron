@@ -99,8 +99,9 @@ class CastIron extends Wallet {
 
 		Object.keys(conditions).map((cond) => 
 		{
-			let condbuf = fs.readFileSync(conditions[cond]);
-			allConditions = { ...allConditions, ...Object(JSON.parse(condbuf.toString())) };
+			let condbuf = fs.readFileSync(conditions[cond]); 
+			let thiscond = eval(JSON.parse(condbuf.toString()));
+			allConditions = { ...allConditions, ...thiscond };
 		});
 
 		// loading conditions. there names needs to follow CastIron conventions to be recognized by queue, otherwise job will fail.

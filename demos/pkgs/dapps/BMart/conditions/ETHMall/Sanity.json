@@ -1,0 +1,1 @@
+"module.exports =\n{\n\tBMart_NewStoreFront_sanity(addr, jobObj) \n\t{\n\t\treturn true;\n\t}\n}\n"
