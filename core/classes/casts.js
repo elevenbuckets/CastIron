@@ -61,9 +61,21 @@ class CastIron extends Wallet {
 	{
 		let txObj = {};
 
+		// txObj field checks.
+                // While CastIron has conditions to perform final checks before send, basic checks here will allow 
+                // caller to drop invalid txObj even before entering promise chain.
+		//
+		// Note: for enqueueTk, it is the caller's duty to verify elements in tkObj.
+                if (
+                        this.web3.toAddress(this.userWallet) !== this.userWallet
+                     || Number(gasAmount) <= 0
+                ){
+                        throw "enqueueTk: Invalid element in txObj";
+                };
+
 		if (amount === null) {
 			txObj = { from: this.userWallet, gas: gasAmount, gasPrice: this.gasPrice } 
-		} else {
+		} else if (amount > 0) {
 			txObj = { from: this.userWallet, value: amount, gas: gasAmount, gasPrice: this.gasPrice }
 		}
 

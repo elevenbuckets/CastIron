@@ -180,6 +180,18 @@ class Wallet extends JobQueue {
 	// using web3.eth.sendTransaction().
 	enqueueTx = tokenSymbol => (toAddress, amount, gasAmount) => 
 	{
+		// txObj field checks.
+		// While CastIron has conditions to perform final checks before send, basic checks here will allow 
+		// caller to drop invalid txObj even before entering promise chain.
+		if (
+			this.web3.toAddress(this.userWallet) !== this.userWallet
+		     || this.web3.toAddress(toAddress) !== toAddress
+		     || Number(amount) <= 0
+		     || Number(gasAmount) <= 0
+		){
+			throw "enqueueTx: Invalid element in txObj";
+		};
+
 		if (tokenSymbol === 'ETH') {
 			return {
 				Q: undefined,
