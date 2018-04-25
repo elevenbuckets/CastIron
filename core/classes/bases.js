@@ -169,7 +169,7 @@ class Wallet extends JobQueue {
 		                //console.log(JSON.stringify(this.jobQ[Q], 0, 2));
 				//process.exit(0);
 			})
-			.catch( (err) => { console.log(err); } );
+			.catch( (err) => { console.log(err); throw "ProcessJob failed, skipping QID..."; } );
 	}
 
 	// Here token is single token record from this.TokenList[symbol]
