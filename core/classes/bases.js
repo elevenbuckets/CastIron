@@ -187,7 +187,9 @@ class Wallet extends JobQueue {
 			this.web3.toAddress(this.userWallet) !== this.userWallet
 		     || this.web3.toAddress(toAddress) !== toAddress
 		     || Number(amount) <= 0
+		     || isNaN(Number(amount))
 		     || Number(gasAmount) <= 0
+		     || isNaN(Number(gasAmount))
 		){
 			throw "enqueueTx: Invalid element in txObj";
 		};

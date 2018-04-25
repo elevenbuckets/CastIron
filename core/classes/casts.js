@@ -69,6 +69,7 @@ class CastIron extends Wallet {
                 if (
                         this.web3.toAddress(this.userWallet) !== this.userWallet
                      || Number(gasAmount) <= 0
+                     || isNaN(Number(gasAmount))
                 ){
                         throw "enqueueTk: Invalid element in txObj";
                 };
