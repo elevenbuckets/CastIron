@@ -128,7 +128,7 @@ class JobQueue extends Wrap3 {
 	                        	        	let tx = this.CUE[o.type][o.contract][o.call](...o.args, o.txObj);
 							console.log(`QID: ${Q} | ${o.type}: ${addr} doing ${o.call} on ${o.contract}, txhash: ${tx}`);
 
-						  	if (typeof(o['amount'] !== 'undefined') {
+						  	if (typeof(o['amount']) !== 'undefined') {
 						    		this.rcdQ[Q].push({id, addr, tx, 
 									'type': o.type, 
 									'contract': o.contract, 
