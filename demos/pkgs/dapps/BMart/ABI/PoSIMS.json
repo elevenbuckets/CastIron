@@ -226,10 +226,10 @@
     "1100": {
       "events": {},
       "links": {},
-      "address": "0xa956b4a00c810f96c505e1106853a4338bd7fdd0",
-      "updated_at": 1524018914874
+      "address": "0x4077962dc195bd5888ae091aa2b509dccb1bd87c",
+      "updated_at": 1524762823292
     }
   },
   "schema_version": "0.0.5",
-  "updated_at": 1524018914874
+  "updated_at": 1524762823292
 }

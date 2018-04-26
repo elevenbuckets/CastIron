@@ -151,10 +151,10 @@
     "1100": {
       "events": {},
       "links": {},
-      "address": "0x97aac75bfec6ecfb4c62ca31d3aa09d91ccab1e2",
-      "updated_at": 1524018914876
+      "address": "0x4ce49671e55bdf011a476943a3a9fc6595490106",
+      "updated_at": 1524762823292
     }
   },
   "schema_version": "0.0.5",
-  "updated_at": 1524018914876
+  "updated_at": 1524762823292
 }

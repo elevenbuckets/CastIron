@@ -28,15 +28,15 @@ ciapi.newApp(__APP__)('0.2', 'ETHMall', abiPath('ETHMall'), {'Sanity': condPath(
 
 let ETHMall = ciapi.CUE[__APP__]['ETHMall'];
 
-//console.log(ETHMall.address);
-//console.log(ETHMall.mallOwner());
+let accounts = ciapi.web3.eth.accounts.splice(1,ciapi.web3.eth.accounts.length); // remove eth.account[0], which is mall owner.
 
-let jobList = [];
+console.log("Mall Entrance: " + ETHMall.address);
 
-ciapi.setAccount('0xd0edda5bcc34d27781ada7c97965a4ff4ac5530a');
-jobList.push(ciapi.enqueueTk('BMart','ETHMall','NewStoreFront', [])(ciapi.web3.toWei(0.085, 'ether').toString(), 1400000, {})) 
+let jobList = accounts.map((addr) => {
+	ciapi.setAccount(addr);
+	return ciapi.enqueueTk('BMart','ETHMall','NewStoreFront', [])(ciapi.web3.toWei(0.085, 'ether').toString(), 1400000, {}); 
+});
 
-//console.log(jobList);
 ciapi.processJobs(jobList).then((Q) => 
 { 
 	let tx = ciapi.rcdQ[Q].map( (o) => { return o.tx;});
@@ -52,6 +52,10 @@ ciapi.processJobs(jobList).then((Q) =>
 })
 .then( () =>
 {
+	console.log(`** BMart Shop Addresses:`);
+	accounts.map((addr) => {
+		console.log(`Owner: ${addr}: Shop Address: ${ETHMall.getStoreInfo(addr)}`);
+	});
         ciapi.closeIPC();
 })
 .catch( (err) => { console.log(err); process.exit(1); });
