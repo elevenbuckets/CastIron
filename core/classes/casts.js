@@ -85,6 +85,8 @@ class CastIron extends Wallet {
 
 	verifyApp = appSymbol => (version, contract, abiPath, conditions) => 
 	{
+		if (appSymbol === 'Web3' || appSymbol === 'Token') return false; // preserved words
+
 		// placeholder to call on-chain package meta for verification
 		// This should generate all checksums and verify against the records on pkg manager smart contract
 		// Smart contract ABI binding to pkg manager should happen during constructor call!
