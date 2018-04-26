@@ -125,18 +125,46 @@ class JobQueue extends Wrap3 {
                 	                this.jobQ[Q][addr].map((o, id) => 
 					{
 						try {
-	                        	                let tx = this.CUE[o.type][o.contract][o.call](...o.args, o.txObj);
+	                        	        	let tx = this.CUE[o.type][o.contract][o.call](...o.args, o.txObj);
 							console.log(`QID: ${Q} | ${o.type}: ${addr} doing ${o.call} on ${o.contract}, txhash: ${tx}`);
-							this.rcdQ[Q].push({id, addr, tx, 'type': o.type, 'token': o.contract, 'call': o.call, ...o.txObj});
+
+						  	if (typeof(o['amount'] !== 'undefined') {
+						    		this.rcdQ[Q].push({id, addr, tx, 
+									'type': o.type, 
+									'contract': o.contract, 
+									'call': o.call, ...o.txObj, 
+									'amount': o.amount
+								});
+						  	} else {
+						    		this.rcdQ[Q].push({id, addr, tx, 
+									'type': o.type, 
+									'contract': o.contract, 
+									'call': o.call, ...o.txObj,
+								        'amount': null
+								});
+						  	}
 						} catch(error) {
-							this.rcdQ[Q].push({id, addr, 'tx': null, error, 'type': o.type, 'token': o.contract, 'call': o.call, ...o.txObj});
+							this.rcdQ[Q].push({id, addr, error,
+								'tx': null,
+							        'type': o.type, 
+							        'contract': o.contract, 
+							        'call': o.call, ...o.txObj, 
+							        'amount': null
+							});
 							throw(error);
 						}
                                 	})
 	                        }).then( () => {
         	                        this.ipc3.personal.lockAccount(addr, (error, r) => {
                         	                if (error) {
-							this.rcdQ[Q].push({'id': null, addr, 'tx': null, error, 'type': 'ipc3', 'token': 'personal', 'call': 'lockAccount' });
+							this.rcdQ[Q].push({
+							  	'id': null, addr, 
+							  	'tx': null, error, 
+							  	'type': 'ipc3', 
+							  	'contract': 'personal', 
+							  	'call': 'lockAccount',
+							  	'amount': null
+						  	});
 							throw(error);
 						}
 
