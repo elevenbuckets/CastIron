@@ -83,6 +83,7 @@ class Wallet extends JobQueue {
 
 	toEth = (wei, decimals) => new BigNumber(String(wei)).div(new BigNumber(10 ** decimals));
 	toWei = (eth, decimals) => new BigNumber(String(eth)).times(new BigNumber(10 ** decimals)).floor();	
+	hex2num = (hex) => new BigNumber(String(hex)).toString();
 
 	setAccount = addr => 
 	{
