@@ -93,19 +93,28 @@ class CastIron extends Wallet {
 		return true;
 	}
 
-	newApp = appSymbol => (version, contract, abiPath, conditions) => 
+	newApp = appSymbol => (version, contract, abiPath, conditions, address = null) => 
 	{
 		if (this.verifyApp(appSymbol)(version, contract, abiPath, conditions) === false) throw 'Invalid dApp info';
 
 		let buffer = fs.readFileSync(abiPath);
 		let artifact = JSON.parse(buffer.toString());
+		artifact.contract_name = contract;
 
-		if (typeof(this.CUE[appSymbol] === 'undefined')) this.CUE[appSymbol] = {};
+		if (typeof(this.CUE[appSymbol]) === 'undefined') this.CUE[appSymbol] = {};
 
 		// appSymbol contains the string which becomes the 'type' keywords of the app
 		// contract is the name of the contract
 		let abi  = this.web3.eth.contract(artifact.abi);
-		let addr = artifact.networks[this.networkID].address;
+		let addr;
+
+		if (address !== null) {
+			console.log(`custom address for contract ${contract} found...`);
+			addr = address;
+		} else {
+			console.log(`contract address fixed ...`);
+		        addr = artifact.networks[this.networkID].address;
+		}
 
 		this.CUE[appSymbol][contract] = abi.at(addr);
 

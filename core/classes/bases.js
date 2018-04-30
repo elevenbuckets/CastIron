@@ -120,31 +120,27 @@ class Wallet extends JobQueue {
 					let gasCost = new BigNumber(job.txObj.gas).times(this.gasPrice); 
 
 					if (
-						txOnly == false
-					     && typeof(this.TokenList[job.contract]) === 'undefined'
+					        typeof(this.TokenList[job.contract]) === 'undefined'
+					     && typeof(job.type) !== 'undefined' 
+					     && job.type === 'Token'
 					     && userBalance.sub(this.allocated[this.userWallet]).gte(gasCost)
 					) {
-						if (typeof(job.type) !== 'undefined' && job.type === 'Token') {
-							console.log(`WARN: Unknown token ${job.contract}, skipping job ...`);
-							return;
-						} else if (
-					     	        typeof(this.CUE[job.type]) !== 'undefined'
-					     	     && typeof(this.CUE[job.type][job.contract]) !== 'undefined'
-						) {
-							console.log(`INFO: calling ${job.type}.${job.contract}.${job.call}, allocating gas fee from wallet: ${gasCost}`);
-							this.allocated[this.userWallet] = this.allocated[this.userWallet].add(gasCost);
-						} else {
-							console.log(`WARN: Invalid call ${job.type}.${job.contract}.${job.call}, skipping job ...`);
-							return;
-						}
+						console.log(`WARN: Unknown token ${job.contract}, skipping job ...`);
+						return;
 					} else if (
-						job.contract !== 'ETH' 
+				     	        typeof(this.CUE[job.type]) === 'undefined'
+				     	     || typeof(this.CUE[job.type][job.contract]) === 'undefined'
+					) {
+						console.log(`WARN: Invalid call ${job.type}.${job.contract}.${job.call}, skipping job ...`);
+						return;
+					} else if (
+						job.type !== 'Web3' 
 					     && userBalance.sub(this.allocated[this.userWallet]).gte(gasCost) 
 					) {
-						console.log(`INFO: transfer token ${job.contract}, allocating gas fee from wallet: ${gasCost}`);
+						console.log(`INFO: calling ${job.type}.${job.contract}.${job.call}, allocating gas fee from wallet: ${gasCost}`);
 						this.allocated[this.userWallet] = this.allocated[this.userWallet].add(gasCost);
 					} else if (
-						job.contract === 'ETH' 
+						job.type === 'Web3' 
 					     && userBalance.sub(this.allocated[this.userWallet]).sub(job.txObj.value).gte(gasCost) 
 					) {
 						console.log(`INFO: sending Ether, allocating gas fee ${gasCost} and ether ${job.txObj.value} from wallet`);

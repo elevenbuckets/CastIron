@@ -8,11 +8,12 @@ module.exports =
 
 		if (
 			this.CUE.Token[jobObj.contract].balanceOf(addr).gte(tokenUnits)
-		     && this.CUE.Token[jobObj.contract].allowance(addr, exchange).gte(tokenUnits)
+		     && this.CUE.Token[jobObj.contract].allowance(addr, exchange).lte(tokenUnits)
 		     && this.web3.eth.getBalance(addr).gte(gasCost)
 		   ) {
 			   return true;
 		   } else {
+			   console.log('WARNING: condition failed!')
 			   return false;
 		   }
 	},
