@@ -109,10 +109,10 @@ class CastIron extends Wallet {
 		let addr;
 
 		if (address !== null) {
-			console.log(`custom address for contract ${contract} found...`);
+			console.debug(`custom address for contract ${contract} found...`);
 			addr = address;
 		} else {
-			console.log(`contract address fixed ...`);
+			console.debug(`contract address fixed ...`);
 		        addr = artifact.networks[this.networkID].address;
 		}
 

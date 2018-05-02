@@ -115,7 +115,7 @@ class JobQueue extends Wrap3 {
         	Object.keys(this.jobQ[Q]).map((addr) => {
                 	if (typeof(passes[addr]) === 'undefined' || passes[addr].length == 0) {
 				delete this.jobQ[Q][addr];
-				console.log("no password provided for address " + addr + ", skipped ...");
+				console.warn("no password provided for address " + addr + ", skipped ...");
 
                         	return;
                 	}
@@ -126,7 +126,7 @@ class JobQueue extends Wrap3 {
 					{
 						try {
 	                        	        	let tx = this.CUE[o.type][o.contract][o.call](...o.args, o.txObj);
-							console.log(`QID: ${Q} | ${o.type}: ${addr} doing ${o.call} on ${o.contract}, txhash: ${tx}`);
+							console.debug(`QID: ${Q} | ${o.type}: ${addr} doing ${o.call} on ${o.contract}, txhash: ${tx}`);
 
 						  	if (typeof(o['amount']) !== 'undefined') {
 						    		this.rcdQ[Q].push({id, addr, tx, 
@@ -168,12 +168,12 @@ class JobQueue extends Wrap3 {
 							throw(error);
 						}
 
-                	                        console.log(`** account: ${addr} is now locked`);
+                	                        console.debug(`** account: ${addr} is now locked`);
 						delete this.jobQ[Q][addr];
 	                                });
         	                })
 
-                	}).catch( (error) => { console.log(error); delete this.jobQ[Q][addr]; return Promise.resolve(); } );
+                	}).catch( (error) => { console.error(error); delete this.jobQ[Q][addr]; return Promise.resolve(); } );
 
         	});
 
@@ -192,7 +192,7 @@ class JobQueue extends Wrap3 {
 			} else if (Object.keys(this.jobQ[Q]).length > 0 && this.ipc3 && this.ipc3.hasOwnProperty('net') == true){
 				setTimeout( () => __closeQ(resolve, reject), 500 );
 			} else {
-				console.log("Uh Oh...... (closeQ)");
+				console.error("Uh Oh...... (closeQ)");
 				reject(false);
 			}
 		};

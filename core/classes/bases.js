@@ -109,14 +109,14 @@ class Wallet extends JobQueue {
 		return this.prepareQ(this.qTimeout)
 			.then( (Q) => 
 			{
-				console.log(`Queue ID: ${Q}, Enqueuing ...`);
+				console.debug(`Queue ID: ${Q}, Enqueuing ...`);
 
 				jobObjList.map( (job) => 
 				{
 					this.setAccount(job.txObj.from);
 					let userBalance = this.web3.eth.getBalance(this.userWallet); 
 
-					console.log(` - Account: ${this.userWallet}; Balance: ${userBalance} ETH`);
+					console.debug(` - Account: ${this.userWallet}; Balance: ${userBalance} ETH`);
 
 					let gasCost = new BigNumber(job.txObj.gas).times(this.gasPrice); 
 
@@ -126,28 +126,28 @@ class Wallet extends JobQueue {
 					     && job.type === 'Token'
 					     && userBalance.sub(this.allocated[this.userWallet]).gte(gasCost)
 					) {
-						console.log(`WARN: Unknown token ${job.contract}, skipping job ...`);
+						console.debug(`WARN: Unknown token ${job.contract}, skipping job ...`);
 						return;
 					} else if (
 				     	        typeof(this.CUE[job.type]) === 'undefined'
 				     	     || typeof(this.CUE[job.type][job.contract]) === 'undefined'
 					) {
-						console.log(`WARN: Invalid call ${job.type}.${job.contract}.${job.call}, skipping job ...`);
+						console.warn(`WARN: Invalid call ${job.type}.${job.contract}.${job.call}, skipping job ...`);
 						return;
 					} else if (
 						job.type !== 'Web3' 
 					     && userBalance.sub(this.allocated[this.userWallet]).gte(gasCost) 
 					) {
-						console.log(`INFO: calling ${job.type}.${job.contract}.${job.call}, allocating gas fee from wallet: ${gasCost}`);
+						console.debug(`INFO: calling ${job.type}.${job.contract}.${job.call}, allocating gas fee from wallet: ${gasCost}`);
 						this.allocated[this.userWallet] = this.allocated[this.userWallet].add(gasCost);
 					} else if (
 						job.type === 'Web3' 
 					     && userBalance.sub(this.allocated[this.userWallet]).sub(job.txObj.value).gte(gasCost) 
 					) {
-						console.log(`INFO: sending Ether, allocating gas fee ${gasCost} and ether ${job.txObj.value} from wallet`);
+						console.debug(`INFO: sending Ether, allocating gas fee ${gasCost} and ether ${job.txObj.value} from wallet`);
 						this.allocated[this.userWallet] = this.allocated[this.userWallet].add(gasCost).add(job.txObj.value);
 					} else {
-						console.log(`WARN: Insufficient fund in wallet, skipping job ...`);
+						console.warn(`WARN: Insufficient fund in wallet, skipping job ...`);
 						return;
 					}
 
@@ -167,7 +167,7 @@ class Wallet extends JobQueue {
 		                //console.log(JSON.stringify(this.jobQ[Q], 0, 2));
 				//process.exit(0);
 			})
-			.catch( (err) => { console.log(err); throw "ProcessJob failed, skipping QID..."; } );
+			.catch( (err) => { console.error(err); throw "ProcessJob failed, skipping QID..."; } );
 	}
 
 	// Here token is single token record from this.TokenList[symbol]
