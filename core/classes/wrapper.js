@@ -152,9 +152,9 @@ class Wrap3 {
 		return gasCost;
 	}
 
-	byte32ToAddress = (b) => { return ciapi.web3.toAddress(ciapi.web3.toHex(ciapi.web3.toBigNumber(String(b)))); };
-	byte32ToDecimal = (b) => { return ciapi.web3.toDecimals(ciapi.web3.toBigNumber(String(b))); };
-	byte32ToBigNumber = (b) => { return ciapi.web3.toBigNumber(String(b)); };
+	byte32ToAddress = (b) => { return this.web3.toAddress(this.web3.toHex(this.web3.toBigNumber(String(b)))); };
+	byte32ToDecimal = (b) => { return this.web3.toDecimals(this.web3.toBigNumber(String(b))); };
+	byte32ToBigNumber = (b) => { return this.web3.toBigNumber(String(b)); };
 
 	// Web3.eth.filter related functions are not delegated to external objects.
 	// type is either 'pending' or 'latest'
