@@ -33,6 +33,7 @@ class Wallet extends JobQueue {
 		this.gasPrice = this.configs.defaultGasPrice || 50000000000; // 50 GWei, this should become dynamic when integrated with gas price oracle
 		this.allocated = {}; // {addr: amount}
 		this.passVault = this.configs.passVault || undefined;
+		this.qTimeout  = this.configs.queueInterval || 5000;
 
 		// This app only need 'Token' ABI type for EIP20, the rest is provided by Wrap3.
 		// and these are to be initialized with hotgroups
@@ -105,7 +106,7 @@ class Wallet extends JobQueue {
 
 		let txOnly = this.hotGroups(tokenList);
 		
-		return this.prepareQ(5000)
+		return this.prepareQ(this.qTimeout)
 			.then( (Q) => 
 			{
 				console.log(`Queue ID: ${Q}, Enqueuing ...`);
