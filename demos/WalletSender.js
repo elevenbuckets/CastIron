@@ -2,42 +2,34 @@
 
 // CastIron instance
 const Wallet = require( __dirname + '/core/Wallet.js');
-const WT     = new Wallet(__dirname + '/.local/configs.json');
+const WT     = new Wallet(__dirname + '/.local/config.json');
 
 // Preparation with gasOracle fetch
-let stage = WT.gasPriceEst();
+//let stage = WT.gasPriceEst();
+
+let stage = Promise.resolve();
+WT.masterpw = 'masterpass';
 
 // MAIN
-stage.then( (gpmx) => 
+stage.then( () => 
 {
-	console.log(gpmx);
-	WT.gasPrice = gpmx.fast;
+	//console.log(gpmx);
+	WT.gasPrice = 20000000000;
 
 	// could have more than one tx
 	// here the values are token or ether counts
-	let SRCWallets = 
-	{
-		'0x7cbfb383074f77ad8b65b885a3f915cff1852a69': 100
-	};
 
-	let TargetWallet = '0x0fd89c6cc7a15310fc944338f2aba16b3b63cb46'; 
+	// DO NOT forget!!!!!!!!!
+  	WT.userWallet = WT.web3.eth.accounts[0];
 
-	// enqueue loop
-	let jobList =
-	  Object.keys(SRCWallets).map( (addr) => 
-	  {
-		// DO NOT forget!!!!!!!!!
-	  	WT.userWallet = addr;
+	// swap unit according to decimals
+	let amount = WT.toWei(100, WT.TokenList['TKA'].decimals).toString();
 
-		// swap unit according to decimals
-		let amount = WT.toWei(SRCWallets[addr], WT.TokenList['TTT'].decimals).toString();
-
-		// enqueue
-		return WT.enqueueTx('TTT')(TargetWallet, amount, 250000);
-	  });
+	// enqueue
+	let jobList = WT.enqueueTx('TKA')(WT.web3.eth.accounts[1], amount, 250000);
 
 	// return promise
-	return WT.processJobs(jobList);	
+	return WT.processJobs([jobList]);	
 })
 .then( (Q) =>
 {

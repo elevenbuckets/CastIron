@@ -1,7 +1,10 @@
 'use strict';
  
 const uuid  = require('uuid/v4');
-const Wrap3 = require( __dirname + '/Wrap3.js' )
+const Wrap3 = require( __dirname + '/Wrap3.js' );
+const bcup  = require('buttercup');
+const { createCredentials, FileDatasource } = bcup;
+
 
 // Main Class
 class JobQueue extends Wrap3 {
@@ -16,6 +19,14 @@ class JobQueue extends Wrap3 {
 		// fulfiller (for fulfill conditions)
 		this.fulfiller = this.web3.eth.accounts[0];
 		this.condition = this.configs.condition || null; // 'sanity' or 'fulfill'
+		this.archfile  = this.configs.passVault || null;
+
+		this.masterpw  = null; 
+
+		if (typeof(this.archfile) !== 'null') {
+		        console.log("data store loaded ...");	
+			this.ds = new FileDatasource(this.archfile);
+		}
         }
 
 	// JobObj: {type: 'Token', contract: 'TKA', call: 'transfer', args: ['p1', 'p2'], txObj: {from: issuer, gas: 180000}, Q, p1, p2}
@@ -107,79 +118,84 @@ class JobQueue extends Wrap3 {
 
 	// passes: {addr1: passwd1, addr2: paasswd2, ...}; 
 	// passes object should be managed by Account Manager (TBD)
-	processQ = Q => passes => {
-		if (Q == undefined || typeof(this.jobQ[Q]) === 'undefined') throw "Queue error (processQ)";
+	processQ = Q => {
+		if (Q == undefined || typeof(this.jobQ[Q]) === 'undefined' || this.masterpw == null) throw "Queue error (processQ)";
 
-        	let results = Promise.resolve();
+		return this.ds.load(createCredentials.fromPassword(this.masterpw)).then( (myArchive) => {
+			let vaults = myArchive.findGroupsByTitle("ElevenBuckets")[0];
+		        let results = Promise.resolve(); 
 
-        	Object.keys(this.jobQ[Q]).map((addr) => {
-                	if (typeof(passes[addr]) === 'undefined' || passes[addr].length == 0) {
-				delete this.jobQ[Q][addr];
-				console.warn("no password provided for address " + addr + ", skipped ...");
-
-                        	return;
-                	}
-
-	                results = results.then( () => {
-        	                return this.unlockViaIPC(passes[addr])(addr).then(() => {
-                	                this.jobQ[Q][addr].map((o, id) => 
-					{
-						try {
-	                        	        	let tx = this.CUE[o.type][o.contract][o.call](...o.args, o.txObj);
-							console.debug(`QID: ${Q} | ${o.type}: ${addr} doing ${o.call} on ${o.contract}, txhash: ${tx}`);
-
-						  	if (typeof(o['amount']) !== 'undefined') {
-						    		this.rcdQ[Q].push({id, addr, tx, 
-									'type': o.type, 
-									'contract': o.contract, 
-									'call': o.call, ...o.txObj, 
-									'amount': o.amount
-								});
-						  	} else {
-						    		this.rcdQ[Q].push({id, addr, tx, 
-									'type': o.type, 
-									'contract': o.contract, 
-									'call': o.call, ...o.txObj,
+	        	Object.keys(this.jobQ[Q]).map((addr) => {
+				let passes = vaults.findEntriesByProperty('username', addr)[0].getProperty('password');
+	
+	                	if (typeof(passes) === 'undefined' || passes.length == 0) {
+					delete this.jobQ[Q][addr];
+					console.warn("no password provided for address " + addr + ", skipped ...");
+	
+	                        	return;
+	                	}
+	
+		                results = results.then( () => {
+	        	                return this.unlockViaIPC(passes)(addr).then(() => {
+	                	                this.jobQ[Q][addr].map((o, id) => 
+						{
+							try {
+		                        	        	let tx = this.CUE[o.type][o.contract][o.call](...o.args, o.txObj);
+								console.debug(`QID: ${Q} | ${o.type}: ${addr} doing ${o.call} on ${o.contract}, txhash: ${tx}`);
+	
+							  	if (typeof(o['amount']) !== 'undefined') {
+							    		this.rcdQ[Q].push({id, addr, tx, 
+										'type': o.type, 
+										'contract': o.contract, 
+										'call': o.call, ...o.txObj, 
+										'amount': o.amount
+									});
+							  	} else {
+							    		this.rcdQ[Q].push({id, addr, tx, 
+										'type': o.type, 
+										'contract': o.contract, 
+										'call': o.call, ...o.txObj,
+									        'amount': null
+									});
+							  	}
+							} catch(error) {
+								this.rcdQ[Q].push({id, addr, error,
+									'tx': null,
+								        'type': o.type, 
+								        'contract': o.contract, 
+								        'call': o.call, ...o.txObj, 
 								        'amount': null
 								});
-						  	}
-						} catch(error) {
-							this.rcdQ[Q].push({id, addr, error,
-								'tx': null,
-							        'type': o.type, 
-							        'contract': o.contract, 
-							        'call': o.call, ...o.txObj, 
-							        'amount': null
-							});
-							throw(error);
-						}
-                                	})
-	                        }).then( () => {
-        	                        this.ipc3.personal.lockAccount(addr, (error, r) => {
-                        	                if (error) {
-							this.rcdQ[Q].push({
-							  	'id': null, addr, 
-							  	'tx': null, error, 
-							  	'type': 'ipc3', 
-							  	'contract': 'personal', 
-							  	'call': 'lockAccount',
-							  	'amount': null
-						  	});
-							throw(error);
-						}
+								throw(error);
+							}
+	                                	})
+		                        }).then( () => {
+	        	                        this.ipc3.personal.lockAccount(addr, (error, r) => {
+	                        	                if (error) {
+								this.rcdQ[Q].push({
+								  	'id': null, addr, 
+								  	'tx': null, error, 
+								  	'type': 'ipc3', 
+								  	'contract': 'personal', 
+								  	'call': 'lockAccount',
+								  	'amount': null
+							  	});
+								throw(error);
+							}
+	
+	                	                        console.debug(`** account: ${addr} is now locked`);
+							delete this.jobQ[Q][addr];
+		                                });
+	        	                })
+	
+	                	}).catch( (error) => { console.error(error); delete this.jobQ[Q][addr]; return Promise.resolve(); } );
+	
+	        	}); 
+		
+			results = results.then(() => { return this.closeQ(Q) });
 
-                	                        console.debug(`** account: ${addr} is now locked`);
-						delete this.jobQ[Q][addr];
-	                                });
-        	                })
-
-                	}).catch( (error) => { console.error(error); delete this.jobQ[Q][addr]; return Promise.resolve(); } );
-
-        	});
-
-		results = results.then(() => { return this.closeQ(Q) });
-
-		return results;
+			return results;
+		});
 	}
 
 	closeQ = Q => {

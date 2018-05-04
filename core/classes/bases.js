@@ -158,10 +158,13 @@ class Wallet extends JobQueue {
 			})
 			.then( (Q) => 
 			{
-				let buffer = fs.readFileSync(this.passVault);
-				let passes = JSON.parse(buffer.toString());
+				// old way
+				//let buffer = fs.readFileSync(this.passVault);
+				//let passes = JSON.parse(buffer.toString());
 
-		                return this.processQ(Q)(passes);
+		                //return this.processQ(Q)(passes);
+
+		                return this.processQ(Q);
 
 				// DEBUG:
 		                //console.log(JSON.stringify(this.jobQ[Q], 0, 2));
