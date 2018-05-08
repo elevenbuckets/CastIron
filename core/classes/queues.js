@@ -4,6 +4,7 @@ const uuid  = require('uuid/v4');
 const Wrap3 = require( __dirname + '/Wrap3.js' );
 const bcup  = require('buttercup');
 const { createCredentials, FileDatasource } = bcup;
+const masterpw = new WeakMap();
 
 
 // Main Class
@@ -21,13 +22,15 @@ class JobQueue extends Wrap3 {
 		this.condition = this.configs.condition || null; // 'sanity' or 'fulfill'
 		this.archfile  = this.configs.passVault || null;
 
-		this.masterpw  = null; 
-
 		if (typeof(this.archfile) !== 'null') {
 		        console.log("data store loaded ...");	
 			this.ds = new FileDatasource(this.archfile);
 		}
+
+		masterpw.set(this, {passwd: null});
         }
+
+	password = (value) => { masterpw.get(this).passwd = value };
 
 	// JobObj: {type: 'Token', contract: 'TKA', call: 'transfer', args: ['p1', 'p2'], txObj: {from: issuer, gas: 180000}, Q, p1, p2}
 	//
@@ -119,9 +122,11 @@ class JobQueue extends Wrap3 {
 	// passes: {addr1: passwd1, addr2: paasswd2, ...}; 
 	// passes object should be managed by Account Manager (TBD)
 	processQ = Q => {
-		if (Q == undefined || typeof(this.jobQ[Q]) === 'undefined' || this.masterpw == null) throw "Queue error (processQ)";
+		let pw = masterpw.get(this).passwd;
 
-		return this.ds.load(createCredentials.fromPassword(this.masterpw)).then( (myArchive) => {
+		if (Q == undefined || typeof(this.jobQ[Q]) === 'undefined' || pw == null) throw "Queue error (processQ)";
+
+		return this.ds.load(createCredentials.fromPassword(pw)).then( (myArchive) => {
 			let vaults = myArchive.findGroupsByTitle("ElevenBuckets")[0];
 		        let results = Promise.resolve(); 
 

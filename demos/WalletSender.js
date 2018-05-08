@@ -8,7 +8,7 @@ const WT     = new Wallet(__dirname + '/.local/config.json');
 //let stage = WT.gasPriceEst();
 
 let stage = Promise.resolve();
-WT.masterpw = 'masterpass';
+WT.password('masterpass');
 
 // MAIN
 stage.then( () => 
