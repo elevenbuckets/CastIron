@@ -32,6 +32,20 @@ class JobQueue extends Wrap3 {
 
 	password = (value) => { masterpw.get(this).passwd = value };
 
+	// return promise
+	validPass = () => 
+	{
+	       let pw = masterpw.get(this).passwd;
+       	       return this.ds.load(createCredentials.fromPassword(pw)).then( (myArchive) => 
+		      {
+			 return true;
+		      })
+	              .catch( (err) => 
+		      { 
+			 return false; 
+		      });
+	}
+
 	// JobObj: {type: 'Token', contract: 'TKA', call: 'transfer', args: ['p1', 'p2'], txObj: {from: issuer, gas: 180000}, Q, p1, p2}
 	//
 	// Type is either "Token" or "Exchange", mind for capital initials; args is an array representing arguments to be passed into smart
@@ -119,8 +133,6 @@ class JobQueue extends Wrap3 {
 	        return new Promise(__initQueue);
 	}
 
-	// passes: {addr1: passwd1, addr2: paasswd2, ...}; 
-	// passes object should be managed by Account Manager (TBD)
 	processQ = Q => {
 		let pw = masterpw.get(this).passwd;
 

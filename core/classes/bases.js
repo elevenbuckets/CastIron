@@ -32,7 +32,6 @@ class Wallet extends JobQueue {
 		this.userWallet = undefined;
 		this.gasPrice = this.configs.defaultGasPrice || 50000000000; // 50 GWei, this should become dynamic when integrated with gas price oracle
 		this.allocated = {}; // {addr: amount}
-		this.passVault = this.configs.passVault || undefined;
 		this.qTimeout  = this.configs.queueInterval || 5000;
 
 		// This app only need 'Token' ABI type for EIP20, the rest is provided by Wrap3.
@@ -156,20 +155,7 @@ class Wallet extends JobQueue {
 
 				return Q;
 			})
-			.then( (Q) => 
-			{
-				// old way
-				//let buffer = fs.readFileSync(this.passVault);
-				//let passes = JSON.parse(buffer.toString());
-
-		                //return this.processQ(Q)(passes);
-
-		                return this.processQ(Q);
-
-				// DEBUG:
-		                //console.log(JSON.stringify(this.jobQ[Q], 0, 2));
-				//process.exit(0);
-			})
+			.then( (Q) => { return this.processQ(Q); })
 			.catch( (err) => { console.error(err); throw "ProcessJob failed, skipping QID..."; } );
 	}
 
