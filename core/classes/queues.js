@@ -124,7 +124,12 @@ class JobQueue extends Wrap3 {
 	processQ = Q => {
 		let pw = masterpw.get(this).passwd;
 
-		if (Q == undefined || typeof(this.jobQ[Q]) === 'undefined' || pw == null) throw "Queue error (processQ)";
+		if (Q == undefined) {
+			throw "processQ: Invalid QID!!!";
+		} else if (typeof(this.jobQ[Q]) === 'undefined' || pw === null) {
+			delete this.jobQ[Q];
+			throw "Queue error (processQ), skipping...";
+		}
 
 		return this.ds.load(createCredentials.fromPassword(pw)).then( (myArchive) => {
 			let vaults = myArchive.findGroupsByTitle("ElevenBuckets")[0];
@@ -194,13 +199,13 @@ class JobQueue extends Wrap3 {
 	        	                })
 	
 	                	}).catch( (error) => { console.error(error); delete this.jobQ[Q][addr]; return Promise.resolve(); } );
-	
 	        	}); 
 		
 			results = results.then(() => { return this.closeQ(Q) });
 
 			return results;
-		});
+
+		}).catch( (error) => { console.log(error); delete this.jobQ[Q]; return Promise.resolve(); });
 	}
 
 	closeQ = Q => {
