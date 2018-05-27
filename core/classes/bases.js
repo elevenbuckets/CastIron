@@ -209,6 +209,9 @@ class Wallet extends JobQueue {
                 if (typeof(this.CUE.Token[tokenSymbol]) === 'undefined') throw new Error(`Token ${tokenSymbol} is not part of current hot group`);
                 return this.CUE.Token[tokenSymbol].balanceOf(walletAddr);
         }
+
+	abiPath = (__ABIDIR, ctrName) => { return path.join(__ABIDIR, ctrName + '.json'); }
+	condPath = (__CONDIR, ctrName, condName) => { return path.join(__CONDIR, ctrName, condName + '.json') };
 }
 
 module.exports = Wallet;
