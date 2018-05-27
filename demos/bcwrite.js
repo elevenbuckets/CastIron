@@ -18,11 +18,11 @@ let batch = {};
 ciapi.allAccounts().map( (addr) => {
     myGroup.createEntry(addr)
 	.setProperty("username", addr)
-	.setProperty("password", "dc384ZU@b9lab");
+	.setProperty("password", "__YOUR_PASSWORD_HERE__");
 })
 
 const ds = new FileDatasource("./myArchive.bcup");
-ds.save(myArchive, createCredentials.fromPassword("masterpass")).then(function() {
+ds.save(myArchive, createCredentials.fromPassword("__YOUR_MASTER_PASSWORD_HERE__")).then(function() {
     console.log("Saved!");
     ciapi.closeIPC();
 });
