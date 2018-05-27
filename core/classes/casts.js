@@ -103,7 +103,7 @@ class CastIron extends Wallet {
 
 		if (typeof(this.CUE[appSymbol]) === 'undefined') this.CUE[appSymbol] = {};
 
-		if (this.hex2num(address) === 0) {
+		if (address === '0x') {
 			this.CUE[appSymbol][contract] = undefined;
 			return;
 		}
