@@ -103,6 +103,11 @@ class CastIron extends Wallet {
 
 		if (typeof(this.CUE[appSymbol]) === 'undefined') this.CUE[appSymbol] = {};
 
+		if (this.hex2num(address) === 0) {
+			this.CUE[appSymbol][contract] = undefined;
+			return;
+		}
+
 		// appSymbol contains the string which becomes the 'type' keywords of the app
 		// contract is the name of the contract
 		let abi  = this.web3.eth.contract(artifact.abi);
