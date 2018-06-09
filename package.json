@@ -33,7 +33,6 @@
     "react-dom": "^16.3.1",
     "react-dropdown": "^1.4.0",
     "reflux": "^6.4.1",
-    "socket.io-client": "^2.0.4",
     "truffle-default-builder": "^2.0.0",
     "uuid": "^3.1.0",
     "web3": "^0.19"
