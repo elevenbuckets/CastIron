@@ -186,7 +186,7 @@ class JobQueue extends Wrap3 {
 								        'type': o.type, 
 								        'contract': o.contract, 
 								        'call': o.call, ...o.txObj, 
-								        'amount': null
+								        'amount': typeof(o['amount']) !== 'undefined' ? o.amount : null
 								});
 								throw(error);
 							}
