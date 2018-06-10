@@ -138,7 +138,7 @@ class JobQueue extends Wrap3 {
 
 		if (Q == undefined) {
 			throw "processQ: Invalid QID!!!";
-		} else if (typeof(this.jobQ[Q]) === 'undefined' || pw === null) {
+		} else if (typeof(this.jobQ[Q]) === 'undefined' || this.jobQ[Q].length === 0|| pw === null) {
 			delete this.jobQ[Q];
 			throw "Queue error (processQ), skipping...";
 		}
