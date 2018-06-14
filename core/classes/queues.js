@@ -217,7 +217,7 @@ class JobQueue extends Wrap3 {
 
 			return results;
 
-		}).catch( (error) => { console.log(error); delete this.jobQ[Q]; return this.close(Q); });
+		}).catch( (error) => { console.log(error); delete this.jobQ[Q]; return this.closeQ(Q); });
 	}
 
 	closeQ = Q => {
