@@ -116,6 +116,10 @@ class Wrap3 {
 
 	getReceipt = (txHash, interval) => 
 	{
+		if (txHash === '0x0000000000000000000000000000000000000000000000000000000000000000') {
+			return Promise.resolve({transactionHash: txHash});
+		}
+
     		const transactionReceiptAsync = (resolve, reject) => {
         		this.web3.eth.getTransactionReceipt(txHash, (error, receipt) => {
             			if (error) {
