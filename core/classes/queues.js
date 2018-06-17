@@ -148,7 +148,13 @@ class JobQueue extends Wrap3 {
 		        let results = Promise.resolve(); 
 
 	        	Object.keys(this.jobQ[Q]).map((addr) => {
-				let passes = vaults.findEntriesByProperty('username', addr)[0].getProperty('password');
+				let passes;
+
+				try {
+					passes = vaults.findEntriesByProperty('username', addr)[0].getProperty('password');
+				} catch(err) {
+					passes = undefined;
+				}
 	
 	                	if (typeof(passes) === 'undefined' || passes.length == 0) {
 					delete this.jobQ[Q][addr];
