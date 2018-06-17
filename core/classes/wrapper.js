@@ -82,7 +82,7 @@ class Wrap3 {
 	unlockViaIPC = passwd => addr => 
 	{
                 const __unlockToExec = (resolve, reject) => {
-                        this.ipc3.personal.unlockAccount(addr, passwd, 12, (error, result) => {
+                        this.ipc3.personal.unlockAccount(addr, passwd, 120, (error, result) => {
                                 if (error) {
                                         reject(error);
                                 } else if (result != true) {
