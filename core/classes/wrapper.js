@@ -157,7 +157,7 @@ class Wrap3 {
 	}
 
 	byte32ToAddress = (b) => { return this.web3.toAddress(this.web3.toHex(this.web3.toBigNumber(String(b)))); };
-	byte32ToDecimal = (b) => { return this.web3.toDecimals(this.web3.toBigNumber(String(b))); };
+	byte32ToDecimal = (b) => { return this.web3.toDecimal(this.web3.toBigNumber(String(b))); };
 	byte32ToBigNumber = (b) => { return this.web3.toBigNumber(String(b)); };
 
 	// Web3.eth.filter related functions are not delegated to external objects.
