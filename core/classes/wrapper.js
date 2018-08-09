@@ -96,17 +96,22 @@ class Wrap3 {
                 return new Promise(__unlockToExec);
         }
 
-	closeIPC = () => 
-	{
+	closeIPC = () =>
+        {
                 const __closeIPC = (resolve, reject) => {
-                        if (this.ipc3 && this.ipc3.hasOwnProperty('net') == true) {
-                                console.log("Shutdown ipc connection!!!");
-                                resolve(this.ipc3.net._requestManager.provider.connection.destroy());
-                        } else if (this.ipc3) {
-                                console.log("Still pending to shutdown ipc connection!!!");
-                                setTimeout( () => __closeIPC(resolve, reject), 500 );
-                        } else {
-                                console.log("Uh Oh...... (closeIPC)");
+			try {
+	                        if (
+	                            this.ipc3 instanceof Web3
+	                         && this.ipc3.net._requestManager.provider instanceof Web3.providers.IpcProvider
+	                        ) {
+	                                console.log("Shutdown ipc connection!!!");
+	                                resolve(this.ipc3.net._requestManager.provider.connection.destroy());
+	                        } else if (this.ipc3 instanceof Web3) {
+	                                console.log("Still pending to shutdown ipc connection!!!");
+	                                setTimeout( () => __closeIPC(resolve, reject), 500 );
+	                        } 
+			} catch (err) {
+                                console.log("Uh Oh...... (closeIPC)" + err);
                                 reject(false);
                         }
                 };
