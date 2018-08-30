@@ -23,10 +23,11 @@ const fs = require('fs');
 class Wrap3 {
 	constructor(cfpath)
 	{
-		//this.configs = require(cfpath);
+		// path check
+		if (!fs.existSync(cfpath)) return {networkID: 'NO_CONFIG'};
+
 		let buffer = fs.readFileSync(cfpath);
 		this.configs = JSON.parse(buffer.toString());
-
 
 		this.networkID = this.configs.networkID;
 
@@ -34,7 +35,7 @@ class Wrap3 {
 		this.ipcPath = this.configs.ipcPath;
 
 		this.web3 = new Web3();
-                this.web3.setProvider(new Web3.providers.HttpProvider(this.rpcAddr));
+                //this.web3.setProvider(new Web3.providers.HttpProvider(this.rpcAddr));
 
 		if (this.web3.version.network != this.networkID) throw(`Connected to network with wrong ID: wants: ${this.networkID}; geth: ${this.web3.net.version}`);
 
@@ -65,7 +66,7 @@ class Wrap3 {
 		};
 
     		this.ipc3 = new Web3();
-    		this.ipc3.setProvider(new Web3.providers.IpcProvider(this.ipcPath, net));
+    		//this.ipc3.setProvider(new Web3.providers.IpcProvider(this.ipcPath, net));
 
 		// this.CUE[type][contract][call](...args, txObj)
 		// Only web3.eth.sendTransaction requires password unlock.
@@ -106,6 +107,64 @@ class Wrap3 {
 
                 return new Promise(__unlockToExec);
         }
+
+	connectRPC = () => {
+                const __connectRPC = (resolve, reject) => {
+                        try {
+                                if (
+                                    this.web3 instanceof Web3
+                                 && this.web3.net._requestManager.provider instanceof Web3.providers.HttpProvider
+                                ) {
+
+                                        if (this.web3.version.network != this.networkID) {
+                                                throw(`Connected to network with wrong ID: wants: ${this.networkID}; geth: ${this.web3.net.version}`);
+                                        }
+
+                                        resolve(true);
+                                } else if (this.web3 instanceof Web3) {
+                                        this.web3.setProvider(new Web3.providers.HttpProvider(this.rpcAddr));
+
+                                        if (this.web3.version.network != this.networkID) {
+                                                throw(`Connected to network with wrong ID: wants: ${this.networkID}; geth: ${this.web3.net.version}`);
+                                        }
+
+                                        resolve(true);
+                                } else {
+                                        reject(false);
+                                }
+                        } catch (err) {
+                                console.log(err);
+                                reject(false);
+                        }
+                }
+
+                return new Promise(__connectRPC);
+        }
+
+        connectIPC = () => {
+                const __connectIPC = (resolve, reject) => {
+                        try {
+                                if (
+                                    this.ipc3 instanceof Web3
+                                 && this.ipc3.net._requestManager.provider instanceof Web3.providers.IpcProvider
+                                ) {
+                                        resolve(true);
+                                } else if (this.ipc3 instanceof Web3) {
+                                        this.ipc3.setProvider(new Web3.providers.IpcProvider(this.ipcPath, net));
+                                        resolve(true);
+                                } else {
+                                        reject(false);
+                                }
+                        } catch (err) {
+                                console.log(err);
+                                reject(false);
+                        }
+                }
+
+                return new Promise(__connectIPC);
+        }
+
+	connect = () => { return this.connectRPC().then(() => { return this.connectIPC();}); }
 
 	closeIPC = () =>
         {

@@ -6,6 +6,7 @@ const bcup  = require('buttercup');
 const { createCredentials, FileDatasource } = bcup;
 const masterpw = new WeakMap();
 
+let tried = 0;
 
 // Main Class
 class JobQueue extends Wrap3 {
@@ -13,21 +14,35 @@ class JobQueue extends Wrap3 {
         {
                 super(cfpath);
 
-                this.version = '1.0'; // API version
-                this.jobQ = {};	// Should use setter / getter
-                this.rcdQ = {};	// Should use setter / getter
+		this.retry = 3; // could be tunable
+		this.connect().then((rc) => {
+			if (!rc) throw("connection error");
 
-		// fulfiller (for fulfill conditions)
-		this.fulfiller = this.web3.eth.accounts[0];
-		this.condition = this.configs.condition || null; // 'sanity' or 'fulfill'
-		this.archfile  = this.configs.passVault || null;
+	                this.version = '1.0'; // API version
+        	        this.jobQ = {};	// Should use setter / getter
+                	this.rcdQ = {};	// Should use setter / getter
 
-		if (typeof(this.archfile) !== 'null') {
-		        console.log("data store loaded ...");	
-			this.ds = new FileDatasource(this.archfile);
+			// fulfiller (for fulfill conditions)
+			this.fulfiller = this.web3.eth.accounts[0];
+			this.condition = this.configs.condition || null; // 'sanity' or 'fulfill'
+			this.archfile  = this.configs.passVault || null;
+
+			if (typeof(this.archfile) !== 'null') {
+			        console.log("data store loaded ...");	
+				this.ds = new FileDatasource(this.archfile);
+			}
+	
+			masterpw.set(this, {passwd: null});
+		})
+		.catch(err) {
+			tried++;
+			if (tried < this.retry) {
+				console.log(`CastIron: Retrying connection ${tried}/${this.retry}`);
+				setTimeout(constructor, 5000, cfpath);
+			} else {
+				throw("CastIron: Connecting to geth Failed");
+			}
 		}
-
-		masterpw.set(this, {passwd: null});
         }
 
 	password = (value) => { masterpw.get(this).passwd = value };
