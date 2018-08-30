@@ -34,7 +34,7 @@ class JobQueue extends Wrap3 {
 	
 			masterpw.set(this, {passwd: null});
 		})
-		.catch(err) {
+		.catch((err) => {
 			tried++;
 			if (tried < this.retry) {
 				console.log(`CastIron: Retrying connection ${tried}/${this.retry}`);
@@ -42,7 +42,7 @@ class JobQueue extends Wrap3 {
 			} else {
 				throw("CastIron: Connecting to geth Failed");
 			}
-		}
+		})
         }
 
 	password = (value) => { masterpw.get(this).passwd = value };
