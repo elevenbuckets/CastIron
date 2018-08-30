@@ -24,7 +24,7 @@ class Wrap3 {
 	constructor(cfpath)
 	{
 		// path check
-		if (!fs.existSync(cfpath)) return {networkID: 'NO_CONFIG'};
+		if (!fs.existsSync(cfpath)) return {networkID: 'NO_CONFIG'};
 
 		let buffer = fs.readFileSync(cfpath);
 		this.configs = JSON.parse(buffer.toString());
