@@ -31,12 +31,19 @@ class Wrap3 {
 		this.networkID = this.configs.networkID;
 
 		this.rpcAddr = this.configs.rpcAddr;
-		this.ipcPath = this.configs.ipcPath;
+		//- this.ipcPath = this.configs.ipcPath;
 
 		this.web3 = new Web3();
                 this.web3.setProvider(new Web3.providers.HttpProvider(this.rpcAddr));
 
 		if (this.web3.version.network != this.networkID) throw(`Connected to network with wrong ID: wants: ${this.networkID}; geth: ${this.web3.net.version}`);
+
+		// check personal class access via RPC, which we will protect by stunnel for secure usage
+		try {
+			let t = this.web3.personal.listAccounts;
+		} catch(err) {
+			if (err.message.match("not available") !== null) throw('Please enable personal via RPC for Stunnel');
+		}
 
     		this.web3.toAddress = address => {
 			let addr = String(this.web3.toHex(this.web3.toBigNumber(address)));
@@ -53,8 +60,8 @@ class Wrap3 {
         		return addr;
 		};
 
-    		this.ipc3 = new Web3();
-    		this.ipc3.setProvider(new Web3.providers.IpcProvider(this.ipcPath, net));
+    		//- this.ipc3 = new Web3();
+    		//- this.ipc3.setProvider(new Web3.providers.IpcProvider(this.ipcPath, net));
 
 		// this.CUE[type][contract][call](...args, txObj)
 		// Only web3.eth.sendTransaction requires password unlock.
@@ -79,10 +86,11 @@ class Wrap3 {
 
 	addrEtherBalance = addr => { return this.web3.eth.getBalance(addr); }
 
+	// Is actually RPC
 	unlockViaIPC = passwd => addr => 
 	{
                 const __unlockToExec = (resolve, reject) => {
-                        this.ipc3.personal.unlockAccount(addr, passwd, 120, (error, result) => {
+                        this.web3.personal.unlockAccount(addr, passwd, 120, (error, result) => {
                                 if (error) {
                                         reject(error);
                                 } else if (result != true) {
@@ -96,8 +104,10 @@ class Wrap3 {
                 return new Promise(__unlockToExec);
         }
 
+	// Is not needed
 	closeIPC = () =>
         {
+		/*
                 const __closeIPC = (resolve, reject) => {
 			try {
 	                        if (
@@ -117,6 +127,9 @@ class Wrap3 {
                 };
 
                 return new Promise(__closeIPC);
+		*/
+
+		return Promise.resolve(true);
         }
 
 	getReceipt = (txHash, interval) => 
