@@ -38,6 +38,17 @@ class Wrap3 {
 
 		if (this.web3.version.network != this.networkID) throw(`Connected to network with wrong ID: wants: ${this.networkID}; geth: ${this.web3.net.version}`);
 
+		// check personal class access via RPC, make sure it does *NOT* work
+		let tp = null;
+
+                try {
+                        tp = this.web3.personal.listAccounts;
+                } catch(err) {
+			true;
+                }
+		
+		if (tp !== null) throw("Please disable personal via RPC access");
+
     		this.web3.toAddress = address => {
 			let addr = String(this.web3.toHex(this.web3.toBigNumber(address)));
 
