@@ -37,8 +37,6 @@ class Wrap3 {
 		this.web3 = new Web3();
                 //this.web3.setProvider(new Web3.providers.HttpProvider(this.rpcAddr));
 
-		if (this.web3.version.network != this.networkID) throw(`Connected to network with wrong ID: wants: ${this.networkID}; geth: ${this.web3.net.version}`);
-
 		// check personal class access via RPC, make sure it does *NOT* work
 		let tp = null;
 
