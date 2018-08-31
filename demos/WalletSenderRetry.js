@@ -7,60 +7,15 @@ const WT     = new Wallet(__dirname + '/.local/config.json');
 // Preparation with gasOracle fetch
 //let stage = WT.gasPriceEst();
 
-// MAIN
-if (!WT.configured()) {
-	console.log("Please configure CastIron!");
-	process.exit(1);
-}
-
-let retries = 3;
-let trial = 0;
-
-const __delay = (t, v) => {
-	return new Promise(function(resolve) { 
-		 setTimeout(resolve.bind(null, v), t)
-	});
-}
-
-let stage = Promise.resolve();
-
-const __checker = (resolve, reject) => {
-	trial++;
-	return WT.connect().then((rc) => {
-			if (!rc && trial <= retries) {
-				console.log("Failed...");
-				return __delay(5000, rc).then((rc) => { reject(rc) });
-			} else {
-				return rc;
-			}
-		})
-		.then((rc) => {
-			if (!rc && trial <= retries) {
-				console.log(`retrying (${trial}/${retries})`);
-				return new Promise(__checker); 
-			} else if (rc) {
-				console.log("connected ... checking password ...")
-				WT.password('masterpass');
-				return WT.validPass().then((r) => { 
-					resolve(r);
-					console.log("password: " + r);
-					return r;
-				});
-			} else {
-				reject("Please check your geth connection");
-			}
-		})
-		.catch( (err) => { console.log("Inner catch"); });
-}
-
-const __reconnect = (p) => {
+const __delay = (t, v) => { return new Promise((resolve) => { setTimeout(resolve.bind(null, v), t) }); }
+const __reconnect = (p, ciapi, trial, retries) => { // p: promise, ciapi: castiron instance, trial: current retry, retries: max retry times
 	return p
-	.then(() => { return WT.connect(); })
+	.then(() => { return ciapi.connect(); })
 	.then((rc) => {
 		if (!rc && trial < retries) {
 			trial++;
 			console.log(`retrying (${trial}/${retries})`);
-			return __delay(5000, null).then(() => { return __reconnect(p); });
+			return __delay(5000, null).then(() => { return __reconnect(p, ciapi, trial, retries); });
 		} else if (!rc && trial >= retries) {
 			throw("Please check your geth connection");
 		} else if (rc) {
@@ -71,10 +26,18 @@ const __reconnect = (p) => {
 	.catch( (err) => { console.log(err); process.exit(1); });
 }
 
-stage = __reconnect(stage);
+// MAIN
+if (!WT.configured()) {
+	console.log("Please configure CastIron!");
+	process.exit(1);
+}
 
-stage
-.then( (r) => {
+const retries = 3;
+let trial = 0;
+let stage = Promise.resolve();
+
+stage = __reconnect(stage, WT, trial, retries);
+stage.then( (r) => {
 	console.log("connected ... checking password ...")
 	WT.password('masterpass');
 	return WT.validPass();
