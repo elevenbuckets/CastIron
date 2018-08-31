@@ -19,9 +19,10 @@ class JobQueue extends Wrap3 {
 		this.condition = this.configs.condition || null; // 'sanity' or 'fulfill'
 		this.archfile  = this.configs.passVault || null;
 	
-		if (typeof(this.archfile) !== 'null') {
-		        console.log("data store loaded ...");	
+		if (this.archfile !== null) {
 			this.ds = new FileDatasource(this.archfile);
+		} else {
+			this.ds = {};
 		}
 		
 		masterpw.set(this, {passwd: null});

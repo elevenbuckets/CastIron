@@ -25,7 +25,6 @@ class Wrap3 {
 	{
 		// path check
 		if (!fs.existsSync(cfpath)) {
-			console.log("HERE");
 			this.networkID = 'NO_CONFIG';
 			this.configs = {};
 		} else {
@@ -112,7 +111,6 @@ class Wrap3 {
         }
 
 	configured = () => {
-	        console.log("I see networkID = " + this.networkID)	
 		if (this.networkID === 'NO_CONFIG') {
 			return false;
 		} else {
