@@ -130,6 +130,7 @@ class Wrap3 {
                                  && this.web3.net._requestManager.provider instanceof Web3.providers.HttpProvider
                                 ) {
 
+					if (this.networkID === 'NO_CONNECTION') this.networkID = this.configs.networkID; // reconnected
                                         if (this.web3.version.network != this.networkID) {
                                                 throw(`Connected to network with wrong ID: wants: ${this.networkID}; geth: ${this.web3.net.version}`);
                                         }
@@ -137,8 +138,9 @@ class Wrap3 {
                                         resolve(true);
                                 } else if (this.web3 instanceof Web3) {
                                         this.web3.setProvider(new Web3.providers.HttpProvider(this.rpcAddr));
-
-                                        if (this.web3.version.network != this.networkID) {
+					
+					if (this.networkID === 'NO_CONNECTION') this.networkID = this.configs.networkID; // reconnected
+					if (this.web3.version.network != this.networkID) {
                                                 throw(`Connected to network with wrong ID: wants: ${this.networkID}; geth: ${this.web3.net.version}`);
                                         }
 
