@@ -37,6 +37,7 @@ class Wrap3 {
 		this.web3 = new Web3();
                 //this.web3.setProvider(new Web3.providers.HttpProvider(this.rpcAddr));
 
+		/*
 		// check personal class access via RPC, make sure it does *NOT* work
 		let tp = null;
 
@@ -47,6 +48,7 @@ class Wrap3 {
                 }
 		
 		if (tp !== null) throw("Please disable personal via RPC access");
+		*/
 
     		this.web3.toAddress = address => {
 			let addr = String(this.web3.toHex(this.web3.toBigNumber(address)));
@@ -106,6 +108,10 @@ class Wrap3 {
                 return new Promise(__unlockToExec);
         }
 
+	connected = () => {
+		return this.web3 instanceof Web3 && this.web3.net._requestManager.provider instanceof Web3.providers.HttpProvider;
+	}
+
 	connectRPC = () => {
                 const __connectRPC = (resolve, reject) => {
                         try {
@@ -162,7 +168,26 @@ class Wrap3 {
                 return new Promise(__connectIPC);
         }
 
-	connect = () => { return this.connectRPC().then(() => { return this.connectIPC();}); }
+	connect = () => {
+		let stage = Promise.resolve();
+
+		stage = stage.then(() => {
+			return this.connectRPC();
+		})
+		.then((rc) => {
+		        if (rc) {	
+				return this.connectIPC();
+			} else {
+				throw("no connection");
+			}
+		})
+		.catch((err) => {
+			this.networkID = 'NO_CONNECTION'; 
+			return Promise.resolve(false); 
+		});
+
+		return stage;	
+	}
 
 	closeIPC = () =>
         {

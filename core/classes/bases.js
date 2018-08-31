@@ -25,7 +25,10 @@ class Wallet extends JobQueue {
 	constructor(cfpath) {
 		super(cfpath);
 
-		this.TokenABI  = this.web3.eth.contract(EIP20ABI);
+		if (this.connected()) {
+			this.TokenABI  = this.web3.eth.contract(EIP20ABI);
+		}
+
 		this.GasOracle = this.configs.gasOracleAPI || undefined;
 		this.TokenList = Tokens;
 		this.filterSets = [];
@@ -66,6 +69,10 @@ class Wallet extends JobQueue {
 
 	hotGroups = tokenList =>
         {
+		if (this.connected()) {
+			this.TokenABI  = this.web3.eth.contract(EIP20ABI);
+		}
+
                 let rc = tokenList.map( (token) =>
                 {
 			if (typeof(this.TokenList[token]) === 'undefined') return false;
