@@ -25,6 +25,10 @@ class Wallet extends JobQueue {
 	constructor(cfpath) {
 		super(cfpath);
 
+		console.log("===");
+		console.log(this);
+		console.log("===");
+
 		if (this.connected()) {
 			this.TokenABI  = this.web3.eth.contract(EIP20ABI);
 		}

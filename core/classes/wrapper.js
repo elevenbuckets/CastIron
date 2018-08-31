@@ -24,15 +24,18 @@ class Wrap3 {
 	constructor(cfpath)
 	{
 		// path check
-		if (!fs.existsSync(cfpath)) return {networkID: 'NO_CONFIG'};
+		if (!fs.existsSync(cfpath)) {
+			console.log("HERE");
+			this.networkID = 'NO_CONFIG';
+			this.configs = {};
+		} else {
+			let buffer = fs.readFileSync(cfpath);
+			this.configs = JSON.parse(buffer.toString());
+			this.networkID = this.configs.networkID;
+		}
 
-		let buffer = fs.readFileSync(cfpath);
-		this.configs = JSON.parse(buffer.toString());
-
-		this.networkID = this.configs.networkID;
-
-		this.rpcAddr = this.configs.rpcAddr;
-		this.ipcPath = this.configs.ipcPath;
+		this.rpcAddr = this.configs.rpcAddr || null;
+		this.ipcPath = this.configs.ipcPath || null;
 
 		this.web3 = new Web3();
                 //this.web3.setProvider(new Web3.providers.HttpProvider(this.rpcAddr));
@@ -107,6 +110,15 @@ class Wrap3 {
 
                 return new Promise(__unlockToExec);
         }
+
+	configured = () => {
+	        console.log("I see networkID = " + this.networkID)	
+		if (this.networkID === 'NO_CONFIG') {
+			return false;
+		} else {
+			return true;
+		}
+	}
 
 	connected = () => {
 		return this.web3 instanceof Web3 && this.web3.net._requestManager.provider instanceof Web3.providers.HttpProvider;
