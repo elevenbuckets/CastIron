@@ -58,6 +58,5 @@ typings/
 .env
 
 .local
-core/*.js
 package-lock.json
 *.js
