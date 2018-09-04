@@ -59,4 +59,3 @@ typings/
 
 .local
 package-lock.json
-*.js
