@@ -80,6 +80,7 @@ class Wrap3 {
 
 	allAccounts = () => { return this.web3.eth.accounts; }
 
+	/*
 	ethNetStatus = () => 
 	{
 		let blockHeight = this.web3.eth.blockNumber;
@@ -87,9 +88,20 @@ class Wrap3 {
 
 		return {blockHeight, blockTime};
 	}
+	*/
 
-	
+	ethNetStatus = () => 
+	{
+		let sync = this.web3.eth.syncing;
+		if (sync === false) {
+			let blockHeight = this.web3.eth.blockNumber;
+			let blockTime   = this.web3.eth.getBlock(blockHeight).timestamp;
 
+			return {blockHeight, blockTime, highestBlock: blockHeight};
+		} else {
+			return {blockHeight: sync.currentBlock, blockTime: this.web3.eth.getBlock(sync.currentBlock).timestamp, highestBlock: sync.highestBlock};
+		}
+	}
 
 	addrEtherBalance = addr => { return this.web3.eth.getBalance(addr); }
 
