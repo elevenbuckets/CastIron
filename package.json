@@ -25,10 +25,10 @@
   "scripts": {
     "postinstall": "npm run core",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "w": "./node_modules/.bin/babel ./core/classes/wrapper.js -o ./core/Wrap3.js",
-    "q": "./node_modules/.bin/babel ./core/classes/queues.js -o ./core/JobQueue.js",
-    "wt": "./node_modules/.bin/babel ./core/classes/bases.js -o ./core/Wallet.js",
-    "c": "./node_modules/.bin/babel ./core/classes/casts.js -o ./core/CastIron.js",
+    "w": "babel core/classes/wrapper.js -o core/Wrap3.js",
+    "q": "babel core/classes/queues.js -o core/JobQueue.js",
+    "wt": "babel core/classes/bases.js -o core/Wallet.js",
+    "c": "babel core/classes/casts.js -o core/CastIron.js",
     "core": "npm run w && npm run q && npm run wt && npm run c",
     "clean": "rm -vfr ./core/*.js ./dist",
     "dist": "npm run clean && npm run core && mkdir -p ./dist && cp -rv ./core ./libs ./package.json ./dist/"
