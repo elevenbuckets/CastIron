@@ -23,21 +23,23 @@ const fs = require('fs');
 class Wrap3 {
 	constructor(cfpath)
 	{
-		//this.configs = require(cfpath);
-		let buffer = fs.readFileSync(cfpath);
-		this.configs = JSON.parse(buffer.toString());
+		// path check
+		if (!fs.existsSync(cfpath)) {
+			this.networkID = 'NO_CONFIG';
+			this.configs = {};
+		} else {
+			let buffer = fs.readFileSync(cfpath);
+			this.configs = JSON.parse(buffer.toString());
+			this.networkID = this.configs.networkID;
+		}
 
-
-		this.networkID = this.configs.networkID;
-
-		this.rpcAddr = this.configs.rpcAddr;
-		this.ipcPath = this.configs.ipcPath;
+		this.rpcAddr = this.configs.rpcAddr || null;
+		this.ipcPath = this.configs.ipcPath || null;
 
 		this.web3 = new Web3();
-                this.web3.setProvider(new Web3.providers.HttpProvider(this.rpcAddr));
+                //this.web3.setProvider(new Web3.providers.HttpProvider(this.rpcAddr));
 
-		if (this.web3.version.network != this.networkID) throw(`Connected to network with wrong ID: wants: ${this.networkID}; geth: ${this.web3.net.version}`);
-
+		/*
 		// check personal class access via RPC, make sure it does *NOT* work
 		let tp = null;
 
@@ -48,6 +50,7 @@ class Wrap3 {
                 }
 		
 		if (tp !== null) throw("Please disable personal via RPC access");
+		*/
 
     		this.web3.toAddress = address => {
 			let addr = String(this.web3.toHex(this.web3.toBigNumber(address)));
@@ -65,7 +68,7 @@ class Wrap3 {
 		};
 
     		this.ipc3 = new Web3();
-    		this.ipc3.setProvider(new Web3.providers.IpcProvider(this.ipcPath, net));
+    		//this.ipc3.setProvider(new Web3.providers.IpcProvider(this.ipcPath, net));
 
 		// this.CUE[type][contract][call](...args, txObj)
 		// Only web3.eth.sendTransaction requires password unlock.
@@ -77,6 +80,7 @@ class Wrap3 {
 
 	allAccounts = () => { return this.web3.eth.accounts; }
 
+	/*
 	ethNetStatus = () => 
 	{
 		let blockHeight = this.web3.eth.blockNumber;
@@ -84,9 +88,20 @@ class Wrap3 {
 
 		return {blockHeight, blockTime};
 	}
+	*/
 
-	
+	ethNetStatus = () => 
+	{
+		let sync = this.web3.eth.syncing;
+		if (sync === false) {
+			let blockHeight = this.web3.eth.blockNumber;
+			let blockTime   = this.web3.eth.getBlock(blockHeight).timestamp;
 
+			return {blockHeight, blockTime, highestBlock: blockHeight};
+		} else {
+			return {blockHeight: sync.currentBlock, blockTime: this.web3.eth.getBlock(sync.currentBlock).timestamp, highestBlock: sync.highestBlock};
+		}
+	}
 
 	addrEtherBalance = addr => { return this.web3.eth.getBalance(addr); }
 
@@ -106,6 +121,105 @@ class Wrap3 {
 
                 return new Promise(__unlockToExec);
         }
+
+	configured = () => {
+		if (this.networkID === 'NO_CONFIG') {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	connected = () => {
+		let live;
+		try {
+		        live = this.web3 instanceof Web3 && this.web3.net._requestManager.provider instanceof Web3.providers.HttpProvider;
+			this.web3.net.listening
+		} catch(err) {
+			live = false;
+		}
+
+		return live;
+	}
+
+	connectRPC = () => {
+                const __connectRPC = (resolve, reject) => {
+                        try {
+                                if (
+                                    this.web3 instanceof Web3
+                                 && this.web3.net._requestManager.provider instanceof Web3.providers.HttpProvider
+                                ) {
+
+					if (this.networkID === 'NO_CONNECTION') this.networkID = this.configs.networkID; // reconnected
+                                        if (this.web3.version.network != this.networkID) {
+                                                throw(`Connected to network with wrong ID: wants: ${this.networkID}; geth: ${this.web3.net.version}`);
+                                        }
+
+                                        resolve(true);
+                                } else if (this.web3 instanceof Web3) {
+                                        this.web3.setProvider(new Web3.providers.HttpProvider(this.rpcAddr));
+					
+					if (this.networkID === 'NO_CONNECTION') this.networkID = this.configs.networkID; // reconnected
+					if (this.web3.version.network != this.networkID) {
+                                                throw(`Connected to network with wrong ID: wants: ${this.networkID}; geth: ${this.web3.net.version}`);
+                                        }
+
+                                        resolve(true);
+                                } else {
+                                        reject(false);
+                                }
+                        } catch (err) {
+                                console.log(err);
+                                reject(false);
+                        }
+                }
+
+                return new Promise(__connectRPC);
+        }
+
+        connectIPC = () => {
+                const __connectIPC = (resolve, reject) => {
+                        try {
+                                if (
+                                    this.ipc3 instanceof Web3
+                                 && this.ipc3.net._requestManager.provider instanceof Web3.providers.IpcProvider
+                                ) {
+                                        resolve(true);
+                                } else if (this.ipc3 instanceof Web3) {
+                                        this.ipc3.setProvider(new Web3.providers.IpcProvider(this.ipcPath, net));
+                                        resolve(true);
+                                } else {
+                                        reject(false);
+                                }
+                        } catch (err) {
+                                console.log(err);
+                                reject(false);
+                        }
+                }
+
+                return new Promise(__connectIPC);
+        }
+
+	connect = () => {
+		let stage = Promise.resolve();
+
+		stage = stage.then(() => {
+			return this.connectRPC();
+		})
+		.then((rc) => {
+		        if (rc) {	
+				return this.connectIPC();
+			} else {
+				throw("no connection");
+			}
+		})
+		.catch((err) => {
+			this.networkID = 'NO_CONNECTION'; 
+			return Promise.resolve(false); 
+		});
+
+		return stage;	
+	}
 
 	closeIPC = () =>
         {
