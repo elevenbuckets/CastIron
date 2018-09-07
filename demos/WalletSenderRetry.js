@@ -25,17 +25,28 @@ const __reconnect = (p, ciapi, trial, retries) => { // p: promise, ciapi: castir
 	})
 	.catch( (err) => { console.log(err); process.exit(1); });
 }
-
-// MAIN
-if (!WT.configured()) {
-	console.log("Please configure CastIron!");
-	process.exit(1);
+const __reconfig = (p, ciapi) => {
+	return p
+	.then(() => { return ciapi.configured() })
+	.then((rc) => {
+		console.log("config:");
+		console.log(ciapi.configs);
+		console.log("networkID:" + ciapi.networkID);
+		if (!rc) {
+			console.log("CastIron will only continue when instance is configured ...");
+			return __delay(5000, null).then(() => { return __reconfig(p, ciapi); });
+		} else if (rc) {
+			return p;
+		}
+	})
 }
 
+// MAIN
 const retries = 3;
 let trial = 0;
 let stage = Promise.resolve();
 
+stage = __reconfig(stage, WT);
 stage = __reconnect(stage, WT, trial, retries);
 stage.then( (r) => {
 	console.log("connected ... checking password ...")

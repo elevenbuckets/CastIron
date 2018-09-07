@@ -21,12 +21,27 @@ const fs = require('fs');
 
 // Main Class
 class Wrap3 {
+
 	constructor(cfpath)
 	{
+		const __watcher = (cfpath) => {
+			console.log("No config found, watcher triggered ...");
+			let cfgw = fs.watch(path.dirname(cfpath), (e, f) => {
+				console.log(`CastIron::__watcher: got fsevent ${e} on ${f}`);
+				if ((e === 'rename' || e === 'change') && f === path.basename(cfpath) && fs.existsSync(cfpath)) {
+					console.log("got config file, parsing ...");
+					let buffer = fs.readFileSync(cfpath);
+					this.configs = JSON.parse(buffer.toString());
+					this.networkID = this.configs.networkID;
+				}
+			})
+		}
+
 		// path check
 		if (!fs.existsSync(cfpath)) {
 			this.networkID = 'NO_CONFIG';
 			this.configs = {};
+			__watcher(cfpath);
 		} else {
 			let buffer = fs.readFileSync(cfpath);
 			this.configs = JSON.parse(buffer.toString());
