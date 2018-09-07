@@ -131,6 +131,8 @@ class Wrap3 {
 	}
 
 	connected = () => {
+		if (!this.configured()) return false;
+
 		let live;
 		try {
 		        live = this.web3 instanceof Web3 && this.web3.net._requestManager.provider instanceof Web3.providers.HttpProvider;
