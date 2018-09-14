@@ -108,12 +108,8 @@ class Wrap3 {
 	ethNetStatus = () => 
 	{
 		let sync = this.web3.eth.syncing;
-		let mining = this.web3.eth.mining;
-		let peers = this.web3.net.peerCount;
 
-		if (sync === false && mining === false && peers === 0){
-			return {blockHeight: null, blockTime: null, highestBlock: 0};
-		} else if (sync === false || mining === true) {
+		if (sync === false) {
 			let blockHeight = this.web3.eth.blockNumber;
 			let blockTime   = this.web3.eth.getBlock(blockHeight).timestamp;
 
