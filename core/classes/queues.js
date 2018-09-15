@@ -44,6 +44,25 @@ class JobQueue extends Wrap3 {
 		      });
 	}
 
+	managedAddress = (address) => 
+	{
+	       let pw = masterpw.get(this).passwd;
+       	       return this.ds.load(createCredentials.fromPassword(pw)).then( (myArchive) => 
+		      {
+			let vaults = myArchive.findGroupsByTitle("ElevenBuckets")[0];
+			let passes = undefined;
+
+			try {
+				passes = vaults.findEntriesByProperty('username', address)[0].getProperty('password');
+			} catch(err) {
+				console.log(err);
+				passes = undefined;
+			}
+
+			return typeof(passes) === 'undefined' ? {[address]: false} : {[address]: true};
+		      })
+	}
+
 	// JobObj: {type: 'Token', contract: 'TKA', call: 'transfer', args: ['p1', 'p2'], txObj: {from: issuer, gas: 180000}, Q, p1, p2}
 	//
 	// Type is either "Token" or "Exchange", mind for capital initials; args is an array representing arguments to be passed into smart
