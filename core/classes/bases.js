@@ -30,7 +30,7 @@ class Wallet extends JobQueue {
 		}
 
 		this.GasOracle = this.configs.gasOracleAPI || undefined;
-		this.TokenList = Tokens;
+		this.TokenList = Tokens[this.networkID];
 		this.filterSets = [];
 		this.userWallet = undefined;
 		this.gasPrice = this.configs.defaultGasPrice || 50000000000; // 50 GWei, this should become dynamic when integrated with gas price oracle
