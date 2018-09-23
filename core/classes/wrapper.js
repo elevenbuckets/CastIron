@@ -107,6 +107,10 @@ class Wrap3 {
 
 	ethNetStatus = () => 
 	{
+		if (this.web3.admin.peers.length === 0) {
+			return {blockHeight: 0, blockTime: 0, highestBlock: 1};
+		}
+
 		let sync = this.web3.eth.syncing;
 
 		if (sync === false) {
