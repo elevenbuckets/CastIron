@@ -107,7 +107,7 @@ class Wrap3 {
 
 	ethNetStatus = () => 
 	{
-		if (this.web3.net.peerCount === 0) {
+		if (this.web3.net.peerCount === 0 && this.web3.eth.mining === false) {
 			return {blockHeight: 0, blockTime: 0, highestBlock: 0};
 		}
 
