@@ -126,7 +126,18 @@ class Wrap3 {
 
 			return {blockHeight, blockTime, highestBlock: blockHeight};
 		} else {
-			return {blockHeight: sync.currentBlock, blockTime: this.web3.eth.getBlock(sync.currentBlock).timestamp, highestBlock: sync.highestBlock};
+			let blockHeight = sync.currentBlock;
+			let highestBlock = sync.highestBlock;
+			let blockTime;
+			try {
+		     		blockTime = this.web3.eth.getBlock(blockHeight).timestamp;
+			} catch(err) {
+				blockTime = 0;
+				blockHeight = 0;
+				highestBlock = 0;
+			}
+
+			return {blockHeight, blockTime, highestBlock};
 		}
 	}
 
