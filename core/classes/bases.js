@@ -160,6 +160,7 @@ class Wallet extends JobQueue {
 					this.enqueue({...job, Q})(this.userWallet);
 				})
 
+				this.allocated = {};
 				return Q;
 			})
 			.then( (Q) => { return this.processQ(Q); })
