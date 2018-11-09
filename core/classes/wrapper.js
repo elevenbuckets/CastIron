@@ -173,8 +173,7 @@ class Wrap3 {
 
 		let live;
 		try {
-		        live = this.web3 instanceof Web3 && this.web3.net._requestManager.provider instanceof Web3.providers.HttpProvider;
-			this.web3.net.listening
+		        live = this.web3 instanceof Web3 && this.web3.net._requestManager.provider instanceof Web3.providers.HttpProvider && this.web3.net.listening;
 		} catch(err) {
 			live = false;
 		}
